@@ -38,7 +38,7 @@ class HomeView extends GetView<HomeController> {
                     child: const SizedBox(height: 600, child: Center(child: Text('About', style: TextStyle(color: Colors.white)))),
                   ), KeyedSubtree(
                     key: controller.sectionKeys['resume'],
-                    child: const SizedBox(height: 600, child: Center(child: Text('resume', style: TextStyle(color: Colors.white)))),
+                    child: const SizedBox(height: 600, child: Center(child: Text('Resume', style: TextStyle(color: Colors.white)))),
                   ),
                   KeyedSubtree(
                     key: controller.sectionKeys['portfolio'],
