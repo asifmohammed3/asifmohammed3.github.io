@@ -38,18 +38,18 @@ class HomeView extends GetView<HomeController> {
                     child: const SizedBox(height: 600, child: Center(child: Text('About', style: TextStyle(color: Colors.white)))),
                   ), KeyedSubtree(
                     key: controller.sectionKeys['resume'],
-                    child: const SizedBox(height: 600, child: Center(child: Text('Hero', style: TextStyle(color: Colors.white)))),
+                    child: const SizedBox(height: 600, child: Center(child: Text('Resume', style: TextStyle(color: Colors.white)))),
                   ),
                   KeyedSubtree(
                     key: controller.sectionKeys['portfolio'],
-                    child: const SizedBox(height: 600, child: Center(child: Text('About', style: TextStyle(color: Colors.white)))),
+                    child: const SizedBox(height: 600, child: Center(child: Text('Portfolio', style: TextStyle(color: Colors.white)))),
                   ), KeyedSubtree(
                     key: controller.sectionKeys['services'],
-                    child: const SizedBox(height: 600, child: Center(child: Text('Hero', style: TextStyle(color: Colors.white)))),
+                    child: const SizedBox(height: 600, child: Center(child: Text('Services', style: TextStyle(color: Colors.white)))),
                   ),
                   KeyedSubtree(
                     key: controller.sectionKeys['contact'],
-                    child: const SizedBox(height: 600, child: Center(child: Text('About', style: TextStyle(color: Colors.white)))),
+                    child: const SizedBox(height: 600, child: Center(child: Text('Contact', style: TextStyle(color: Colors.white)))),
                   ),
                   // Add more sections here...
                 ],
