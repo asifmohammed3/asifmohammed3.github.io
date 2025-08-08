@@ -3,9 +3,8 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:portfolio_website/app/modules/home/controllers/home_controller.dart';
 
-class SidebarMenu extends StatelessWidget {
+class SidebarMenu extends GetView<HomeController> {
   SidebarMenu({super.key});
-  final controller = Get.find<HomeController>();
 
   // Main navigation items
   final navItems = [
@@ -37,31 +36,35 @@ class SidebarMenu extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Obx(() => Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                ...navItems.map((item) {
-                  final isSelected = controller.currentSection.value.toLowerCase() == item.label.toLowerCase();
-                  return _SidebarMenuItem(
-                    label: item.label,
-                    icon: item.icon,
-                    isSelected: isSelected,
-                    onTap: () {
-                      controller.scrollToSection(item.label.toLowerCase());
-                    },
-                    // Add dropdown children if needed
-                  );
-                }),
-              ],
-            )),
+            Obx(
+              () => Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ...navItems.map((item) {
+                    final isSelected =
+                        controller.currentSection.value.toLowerCase() ==
+                        item.label.toLowerCase();
+                    return _SidebarMenuItem(
+                      label: item.label,
+                      icon: item.icon,
+                      isSelected: isSelected,
+                      onTap: () {
+                        controller.scrollToSection(item.label.toLowerCase());
+                      },
+                      // Add dropdown children if needed
+                    );
+                  }),
+                ],
+              ),
+            ),
             const Spacer(),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: socials.map(
-                  (icon) => _CircleIcon(icon: icon),
-                ).toList(),
+                children: socials
+                    .map((icon) => _CircleIcon(icon: icon))
+                    .toList(),
               ),
             ),
           ],
@@ -75,6 +78,7 @@ class SidebarMenu extends StatelessWidget {
 class _NavItemData {
   final String label;
   final IconData icon;
+
   _NavItemData(this.label, this.icon);
 }
 
@@ -96,8 +100,9 @@ class _SidebarMenuItem extends StatelessWidget {
     final inactiveColor = const Color(0xFFB3B3B3);
     final activeColor = Colors.white;
     final textColor = isSelected ? activeColor : inactiveColor;
-    final fontWeight =
-        (isSelected || label == "Home") ? FontWeight.bold : FontWeight.normal;
+    final fontWeight = (isSelected || label == "Home")
+        ? FontWeight.bold
+        : FontWeight.normal;
 
     return InkWell(
       borderRadius: BorderRadius.circular(8),
@@ -116,15 +121,12 @@ class _SidebarMenuItem extends StatelessWidget {
             Text(
               label,
               style: TextStyle(
-                color: label == "Home"
-                    ? Colors.white
-                    : textColor,
+                color: label == "Home" ? Colors.white : textColor,
                 fontWeight: fontWeight,
                 fontSize: label == "Home" ? 22 : 18,
                 letterSpacing: 0.3,
               ),
             ),
-            
           ],
         ),
       ),
@@ -134,19 +136,20 @@ class _SidebarMenuItem extends StatelessWidget {
 
 class _CircleIcon extends StatelessWidget {
   final IconData icon;
+
   const _CircleIcon({required this.icon});
+
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 44, height: 44,
+      width: 44,
+      height: 44,
       margin: const EdgeInsets.symmetric(horizontal: 4),
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         color: const Color(0xFF232323),
       ),
-      child: Center(
-        child: FaIcon(icon, color: Colors.white, size: 20),
-      ),
+      child: Center(child: FaIcon(icon, color: Colors.white, size: 20)),
     );
   }
 }

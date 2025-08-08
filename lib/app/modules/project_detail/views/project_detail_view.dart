@@ -15,52 +15,83 @@ class ProjectDetailView extends GetView<ProjectDetailController> {
     final screenWidth = MediaQuery.of(context).size.width;
     final isMobile = screenWidth < 1000;
 
-    if (controller.projectDetail == null) {
+    return Obx(() {
+      final isLoading = controller.isLoading.value;
+      final errorMsg = controller.error.value;
+      final detail = controller.projectDetail.value;
+
+      if (isLoading) {
+        return Scaffold(
+          backgroundColor: const Color(0xFF1A1A1A),
+          body: const Center(child: CircularProgressIndicator()),
+        );
+      }
+
+      if (errorMsg != null) {
+        return Scaffold(
+          backgroundColor: const Color(0xFF1A1A1A),
+          appBar: isMobile
+              ? AppBar(
+                  backgroundColor: Colors.transparent,
+                  automaticallyImplyLeading: false,
+                  actions: [CustomHamburger()],
+                  elevation: 0,
+                )
+              : null,
+          body: Center(
+            child: Text(
+              errorMsg,
+              style: const TextStyle(color: Colors.redAccent, fontSize: 18),
+            ),
+          ),
+        );
+      }
+
+      if (detail == null) {
+        return Scaffold(
+          backgroundColor: const Color(0xFF1A1A1A),
+          appBar: isMobile
+              ? AppBar(
+                  backgroundColor: Colors.transparent,
+                  automaticallyImplyLeading: false,
+                  actions: [CustomHamburger()],
+                  elevation: 0,
+                )
+              : null,
+          body: const Center(
+            child: Text(
+              'No project data available.',
+              style: TextStyle(color: Colors.white70, fontSize: 18),
+            ),
+          ),
+        );
+      }
+
       return Scaffold(
         backgroundColor: const Color(0xFF1A1A1A),
+        drawer: Responsive.isMobile(context) ? SidebarMenu() : null,
         appBar: isMobile
             ? AppBar(
                 backgroundColor: Colors.transparent,
-                automaticallyImplyLeading: false, // Remove default hamburger
+                automaticallyImplyLeading: false,
                 actions: [CustomHamburger()],
                 elevation: 0,
               )
             : null,
-        body: Center(
-          child: Text(
-            'No project data available.',
-            style: TextStyle(color: Colors.white70, fontSize: 18),
+        body: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Responsive(
+            mobile: _buildMobileContent(context, detail),
+            tablet: _buildTabletContent(context, detail),
+            desktop: _buildDesktopContent(context, detail),
           ),
         ),
       );
-    }
-
-    return Scaffold(
-      backgroundColor: const Color(0xFF1A1A1A),
-      drawer: Responsive.isMobile(context) ? SidebarMenu() : null,
-      appBar: isMobile
-          ? AppBar(
-              backgroundColor: Colors.transparent,
-              automaticallyImplyLeading: false, // Remove default hamburger
-              actions: [CustomHamburger()],
-              elevation: 0,
-            )
-          : null,
-      // Drawer only on mobile
-      body: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Responsive(
-          mobile: _buildMobileContent(context),
-          tablet: _buildTabletContent(context),
-          desktop: _buildDesktopContent(context),
-        ),
-      ),
-    );
+    });
   }
 
-  // Mobile Layout: vertical stacking, sidebar as drawer
-  Widget _buildMobileContent(BuildContext context) {
-    final project = controller.projectDetail!;
+  /// Pass in non-null ProjectDetail everywhere below!
+  Widget _buildMobileContent(BuildContext context, ProjectDetail project) {
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -80,13 +111,11 @@ class ProjectDetailView extends GetView<ProjectDetailController> {
     );
   }
 
-  // Tablet Layout: sidebar visible + flexible content side-by-side
-  Widget _buildTabletContent(BuildContext context) {
-    final project = controller.projectDetail!;
+  Widget _buildTabletContent(BuildContext context, ProjectDetail project) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(width: 200, child: SidebarMenu().paddingAll(24)),
+        SizedBox(width: 200, child: SidebarMenu().paddingAll(24)),
         const SizedBox(width: 24),
         Expanded(
           child: SingleChildScrollView(
@@ -118,13 +147,11 @@ class ProjectDetailView extends GetView<ProjectDetailController> {
     );
   }
 
-  // Desktop Layout: wider sidebar + more spacious layout
-  Widget _buildDesktopContent(BuildContext context) {
-    final project = controller.projectDetail!;
+  Widget _buildDesktopContent(BuildContext context, ProjectDetail project) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(width: 280, child: SidebarMenu().paddingAll(24)),
+        SizedBox(width: 280, child: SidebarMenu().paddingAll(24)),
         const SizedBox(width: 40),
         Expanded(
           child: SingleChildScrollView(
@@ -156,9 +183,6 @@ class ProjectDetailView extends GetView<ProjectDetailController> {
     );
   }
 
-  // You can keep your existing implementations for these helper widgets,
-  // adding optional parameters if you want to adjust image height or widths for different screens.
-
   Widget _buildHeader({bool isMobile = false}) {
     return isMobile
         ? Column(
@@ -173,7 +197,7 @@ class ProjectDetailView extends GetView<ProjectDetailController> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              SizedBox(height: 12),
+              const SizedBox(height: 12),
               Row(
                 children: [
                   GestureDetector(
@@ -230,15 +254,21 @@ class ProjectDetailView extends GetView<ProjectDetailController> {
   }
 
   Widget _buildProjectImage(ProjectDetail project, {bool mobileMode = false}) {
+    final url = project.imgUrl ?? '';
     return Container(
       height: mobileMode ? 240 : 400,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
-        image: DecorationImage(
-          image: NetworkImage(project.imgUrl),
-          fit: BoxFit.cover,
-        ),
+        image: url.isNotEmpty
+            ? DecorationImage(image: NetworkImage(url), fit: BoxFit.cover)
+            : null,
+        color: Colors.grey.shade800,
       ),
+      child: url.isEmpty
+          ? const Center(
+              child: Icon(Icons.broken_image, color: Colors.white, size: 40),
+            )
+          : null,
     );
   }
 
@@ -313,110 +343,111 @@ class ProjectDetailView extends GetView<ProjectDetailController> {
       ),
     );
   }
-}
 
-Widget _buildProjectOverview(ProjectDetail project) {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      const Text(
-        'Project Overview',
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: 24,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-      const SizedBox(height: 20),
-      Text(
-        project.description,
-        style: TextStyle(
-          color: Colors.white.withOpacity(0.8),
-          fontSize: 16,
-          height: 1.6,
-        ),
-      ),
-    ],
-  );
-}
-
-Widget _buildKeyFeatures(ProjectDetail project, {bool isMobile = false}) {
-  if (project.keyFeatures.isEmpty) return const SizedBox.shrink();
-
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      const Text(
-        'Key Features',
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: 24,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-      const SizedBox(height: 30),
-      GridView.builder(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        itemCount: project.keyFeatures.length,
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: isMobile ? 1 : 2,
-          crossAxisSpacing: 24,
-          mainAxisSpacing: 24,
-          childAspectRatio: 2.5, // increase to make card wider than tall
-        ),
-        itemBuilder: (context, index) {
-          final feature = project.keyFeatures[index];
-          return _buildFeatureCard(
-            feature.icon,
-            feature.title,
-            feature.description,
-          );
-        },
-      ),
-    ],
-  );
-}
-
-Widget _buildFeatureCard(IconData icon, String title, String description) {
-  return Container(
-    padding: const EdgeInsets.all(16),
-    decoration: BoxDecoration(
-      color: const Color(0xFF2A2A2A),
-      borderRadius: BorderRadius.circular(12),
-    ),
-    child: Column(
+  Widget _buildProjectOverview(ProjectDetail project) {
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min, // Minimizes vertical expansion
       children: [
-        Container(
-          width: 50,
-          height: 50,
-          decoration: BoxDecoration(
-            color: Colors.black87,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Icon(icon, color: Colors.white, size: 28),
-        ),
-        const SizedBox(height: 16),
-        Text(
-          title,
-          style: const TextStyle(
+        const Text(
+          'Project Overview',
+          style: TextStyle(
             color: Colors.white,
-            fontSize: 16,
+            fontSize: 24,
             fontWeight: FontWeight.bold,
           ),
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 20),
         Text(
-          description,
+          project.description ?? '',
           style: TextStyle(
-            color: Colors.white.withOpacity(0.7),
-            fontSize: 13,
-            height: 1.4,
+            color: Colors.white.withOpacity(0.8),
+            fontSize: 16,
+            height: 1.6,
           ),
         ),
       ],
-    ),
-  );
+    );
+  }
+
+  Widget _buildKeyFeatures(ProjectDetail project, {bool isMobile = false}) {
+    if (project.keyFeatures == null || project.keyFeatures!.isEmpty)
+      return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Key Features',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 30),
+        GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: project.keyFeatures!.length,
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: isMobile ? 1 : 2,
+            crossAxisSpacing: 24,
+            mainAxisSpacing: 24,
+            childAspectRatio: 2.5,
+          ),
+          itemBuilder: (context, index) {
+            final feature = project.keyFeatures![index];
+            return _buildFeatureCard(
+              feature.icon,
+              feature.title,
+              feature.description,
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFeatureCard(IconData icon, String title, String description) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFF2A2A2A),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 50,
+            height: 50,
+            decoration: BoxDecoration(
+              color: Colors.black87,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(icon, color: Colors.white, size: 28),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            title,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            description,
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.7),
+              fontSize: 13,
+              height: 1.4,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }

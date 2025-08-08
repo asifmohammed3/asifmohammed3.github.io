@@ -111,9 +111,9 @@ class Certification {
 class ResumeSectionModel {
   final String subtitle; // Description under "Resume"
   final ProfileModel profile;
-  final List<Experience> experiences;
-  final List<Education> educations;
-  final List<Certification> certifications;
+  late final List<Experience> experiences;
+  late final List<Education> educations;
+  late final List<Certification> certifications;
 
   ResumeSectionModel({
     required this.subtitle,

@@ -11,7 +11,7 @@ class HeroSection extends GetView<HomeController> {
   @override
   Widget build(BuildContext context) {
     final isWide = MediaQuery.of(context).size.width > 900;
-    final heroData = controller.heroSection; // Access model here
+    final heroData = controller.heroSection.value; // Access model here
 
     return SizedBox(
       height: MediaQuery.of(context).size.height,
@@ -39,9 +39,18 @@ class HeroSection extends GetView<HomeController> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      _leftContent(isWide, heroData),
+                      _leftContent(
+                        isWide,
+                        heroData ??
+                            HeroSectionModel(
+                              name: '',
+                              animatedRoles: [""],
+                              description: '',
+                              profileImageUrl: '',
+                            ),
+                      ),
                       const SizedBox(width: 40, height: 40),
-                      _rightImage(heroData.profileImageUrl),
+                      _rightImage(heroData?.profileImageUrl ?? ""),
                     ],
                   ),
                 ),
@@ -191,6 +200,9 @@ class HeroSection extends GetView<HomeController> {
   }
 
   Widget _rightImage(String imageUrl) {
+    if (imageUrl.isEmpty) {
+      return const SizedBox();
+    }
     return Expanded(
       flex: 1,
       child: Stack(

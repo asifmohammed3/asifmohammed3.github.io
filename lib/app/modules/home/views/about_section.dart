@@ -24,7 +24,7 @@ class ProfileCard extends GetView<HomeController> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          ProfCard(profile: controller.profileData),
+          ProfCard(profile: controller.profileData.value),
           const SizedBox(height: 20),
           _rightPanel(),
         ],
@@ -41,7 +41,7 @@ class ProfileCard extends GetView<HomeController> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(width: 12),
-            ProfCard(profile: controller.profileData),
+            ProfCard(profile: controller.profileData.value),
             const SizedBox(width: 12),
             Expanded(child: _rightPanel()),
           ],
@@ -57,7 +57,10 @@ class ProfileCard extends GetView<HomeController> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(flex: 4, child: ProfCard(profile: controller.profileData)),
+          Expanded(
+            flex: 4,
+            child: ProfCard(profile: controller.profileData.value),
+          ),
           const SizedBox(width: 12),
           Expanded(flex: 6, child: _rightPanel()),
         ],
@@ -74,15 +77,24 @@ class ProfileCard extends GetView<HomeController> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(height: 12),
-          _TagLine(tagLine: controller.profileData.tagLine),
+          _TagLine(tagLine: controller.profileData.value?.tagLine ?? ""),
           SizedBox(height: 18),
-          _Heading(heading: controller.profileData.heading),
+          _Heading(heading: controller.profileData.value?.heading ?? ""),
           SizedBox(height: 18),
-          _Description(desc: controller.profileData.description),
+          _Description(desc: controller.profileData.value?.description ?? ""),
           SizedBox(height: 24),
-          _StatsRow(statList: controller.profileData.stats),
+          _StatsRow(statList: controller.profileData.value?.stats ?? []),
           SizedBox(height: 24),
-          ResumeInfoCard(info: controller.profileData.resumeInfo),
+          ResumeInfoCard(
+            info:
+                controller.profileData.value?.resumeInfo ??
+                ResumeInfo(
+                  specialization: "",
+                  education: "",
+                  experienceLevel: "",
+                  languages: "",
+                ),
+          ),
           SizedBox(height: 24),
         ],
       ),
@@ -194,7 +206,7 @@ class _StatBox extends StatelessWidget {
 }
 
 class ProfCard extends StatelessWidget {
-  final ProfileModel profile;
+  final ProfileModel? profile;
 
   const ProfCard({super.key, required this.profile});
 
@@ -220,12 +232,15 @@ class ProfCard extends StatelessWidget {
                 color: Colors.white12,
               ),
               child: ClipOval(
-                child: Image.network(profile.imageUrl, fit: BoxFit.cover),
+                child: Image.network(
+                  profile?.imageUrl ?? "",
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
             const SizedBox(height: 18),
             Text(
-              profile.name,
+              profile?.name ?? "",
               style: const TextStyle(
                 fontSize: 23,
                 fontWeight: FontWeight.bold,
@@ -235,15 +250,15 @@ class ProfCard extends StatelessWidget {
             ),
             const SizedBox(height: 7),
             Text(
-              profile.title,
+              profile?.title ?? "",
               style: const TextStyle(color: Colors.white70, fontSize: 15.5),
             ),
             const SizedBox(height: 24),
-            _InfoField(icon: Icons.email_outlined, text: profile.email),
+            _InfoField(icon: Icons.email_outlined, text: profile?.email ?? ""),
             const SizedBox(height: 10),
-            _InfoField(icon: Icons.phone, text: profile.phone),
+            _InfoField(icon: Icons.phone, text: profile?.phone ?? ""),
             const SizedBox(height: 10),
-            _InfoField(icon: Icons.location_on, text: profile.location),
+            _InfoField(icon: Icons.location_on, text: profile?.location ?? ""),
           ],
         ),
       ),

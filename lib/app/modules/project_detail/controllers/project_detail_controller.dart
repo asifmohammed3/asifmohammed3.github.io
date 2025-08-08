@@ -1,64 +1,105 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../data/api_models/portfolio_models.dart';
 import '../../home/controllers/home_controller.dart';
 
 class ProjectDetailController extends GetxController {
-  //TODO: Implement ProjectDetailController
+  // Observables for project detail
+  final projectDetail = Rxn<ProjectDetail>();
+  final isLoading = false.obs;
+  final error = RxnString();
 
-  final count = 0.obs;
+  final supabase = Supabase.instance.client;
 
   @override
   void onInit() {
     super.onInit();
-    Get.lazyPut(() => HomeController());
+    fetchProjectDetail();
+  }
+
+  Future<void> fetchProjectDetail() async {
     final Project? project = Get.arguments as Project?;
+
+    // If not project is passed, exit with error.
+    if (project == null) {
+      error.value = "No project data was provided.";
+      return;
+    }
+
+    // If you only need what's in the Project, assign a minimal detail:
+    projectDetail.value = ProjectDetail(
+      id: project.id,
+      title: project.title,
+      description: project.description,
+      imgUrl: project.imgUrl,
+      type: project.type,
+      client: '',
+      // if not in Project, load below from Supabase
+      date: '',
+      projectUrl: '',
+      keyFeatures: [],
+    );
+
+    isLoading.value = true;
+
+    try {
+      // Example: fetch more details from 'project_details' table by project id
+      final res = await supabase
+          .from('project_details')
+          .select()
+          .eq('project_id', project.id)
+          .maybeSingle();
+
+      if (res != null) {
+        // Map fields as per your DB columns
+        List<Feature> features = [];
+        if (res['features'] != null && res['features'] is List<dynamic>) {
+          features = (res['features'] as List<dynamic>).map((f) {
+            return Feature(
+              icon: _stringToIcon(f['icon']),
+              title: f['title'] ?? '',
+              description: f['description'] ?? '',
+            );
+          }).toList();
+        }
+
+        projectDetail.value = ProjectDetail(
+          id: project.id,
+          title: res['title'] ?? project.title,
+          description: res['description'] ?? project.description,
+          imgUrl: res['img_url'] ?? project.imgUrl,
+          type: project.type,
+          client: res['client'] ?? '',
+          date: res['date'] ?? '',
+          projectUrl: res['project_url'] ?? '',
+          keyFeatures: features,
+        );
+      }
+
+      error.value = null;
+    } catch (e) {
+      error.value = "Failed to load project details: $e";
+    } finally {
+      isLoading.value = false;
+    }
   }
 
-  final ProjectDetail projectDetail = ProjectDetail(
-    id: 'proj1',
-    title: 'Enterprise Web Application',
-    description:
-        'A scalable enterprise-grade web application built with modern technologies that supports thousands of concurrent users and integrates complex business logic.',
-    imgUrl: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb',
-    type: PortfolioTab.professional,
-    client: 'Victoria Technologies',
-    date: '01 March, 2024',
-    projectUrl: 'https://www.victoriatech.com',
-    keyFeatures: [
-      Feature(
-        icon: Icons.design_services_outlined,
-        title: 'Modern UI/UX',
-        description: 'Clean, intuitive, and responsive design for all devices.',
-      ),
-      Feature(
-        icon: Icons.security_outlined,
-        title: 'Advanced Security',
-        description: 'Robust authentication and authorization mechanisms.',
-      ),
-      Feature(
-        icon: Icons.cloud,
-        title: 'Cloud Native',
-        description: 'Deployed on AWS with full CI/CD pipelines.',
-      ),
-      Feature(
-        icon: Icons.analytics_outlined,
-        title: 'Real-time Analytics',
-        description: 'User behavior tracked and analyzed in real-time.',
-      ),
-    ],
-  );
-
-  @override
-  void onReady() {
-    super.onReady();
+  // Example: Map a string from DB to an IconData
+  IconData _stringToIcon(String? iconName) {
+    switch (iconName) {
+      case 'design_services_outlined':
+        return Icons.design_services_outlined;
+      case 'security_outlined':
+        return Icons.security_outlined;
+      case 'cloud':
+        return Icons.cloud;
+      case 'analytics_outlined':
+        return Icons.analytics_outlined;
+      // add more mappings as needed
+      default:
+        return Icons.star_outline;
+    }
   }
-
-  @override
-  void onClose() {
-    super.onClose();
-  }
-
-  void increment() => count.value++;
 }
