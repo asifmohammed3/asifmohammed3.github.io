@@ -42,16 +42,12 @@ class HeroSectionModel {
   final String name;
   final List<String> animatedRoles;
   final String description;
-  final String viewWorkButtonText;
-  final String getInTouchButtonText;
   final String profileImageUrl;
 
   HeroSectionModel({
     required this.name,
     required this.animatedRoles,
     required this.description,
-    required this.viewWorkButtonText,
-    required this.getInTouchButtonText,
     required this.profileImageUrl,
   });
 }

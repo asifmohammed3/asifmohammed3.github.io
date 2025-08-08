@@ -90,8 +90,6 @@ class HomeController extends GetxController with GetTickerProviderStateMixin {
     description:
         "Passionate about creating exceptional digital experiences that\n"
         "blend innovative design with functional development. Let's bring your vision to life.",
-    viewWorkButtonText: "View My Work",
-    getInTouchButtonText: "Get In Touch",
     profileImageUrl:
         "https://images.pexels.com/photos/2379005/pexels-photo-2379005.jpeg",
   );

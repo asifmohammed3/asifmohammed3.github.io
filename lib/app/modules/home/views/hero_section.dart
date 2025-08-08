@@ -139,7 +139,7 @@ class HeroSection extends GetView<HomeController> {
               elevation: 5,
             ),
             child: Text(
-              heroData.viewWorkButtonText,
+              "View My Work",
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 16,
@@ -181,7 +181,7 @@ class HeroSection extends GetView<HomeController> {
                   }),
                 ),
             child: Text(
-              heroData.getInTouchButtonText,
+              "Get In Touch",
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
             ),
           ),
