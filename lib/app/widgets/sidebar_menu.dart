@@ -5,72 +5,148 @@ import 'package:portfolio_website/app/modules/home/controllers/home_controller.d
 
 class SidebarMenu extends StatelessWidget {
   SidebarMenu({super.key});
-
   final controller = Get.find<HomeController>();
+
+  // Main navigation items
+  final navItems = [
+    _NavItemData("Home", FontAwesomeIcons.house),
+    _NavItemData("About", FontAwesomeIcons.user),
+    _NavItemData("Skills", FontAwesomeIcons.noteSticky),
+    _NavItemData("Resume", FontAwesomeIcons.file),
+    _NavItemData("Portfolio", FontAwesomeIcons.image),
+    _NavItemData("Contact", FontAwesomeIcons.envelope),
+  ];
+
+  // Socials
+  final socials = [
+    FontAwesomeIcons.facebookF,
+    FontAwesomeIcons.instagram,
+    FontAwesomeIcons.linkedinIn,
+  ];
 
   @override
   Widget build(BuildContext context) {
-    final items = {
-      'home': FontAwesomeIcons.house,
-      'about': FontAwesomeIcons.user,
-      'resume': FontAwesomeIcons.file,
-      'portfolio': FontAwesomeIcons.image,
-      'services': FontAwesomeIcons.server,
-      'contact': FontAwesomeIcons.envelope,
-    };
-
     return IntrinsicHeight(
       child: Container(
-        width: 250,
-        padding: const EdgeInsets.symmetric(vertical: 30),
+        width: 270,
         decoration: BoxDecoration(
           color: const Color(0xFF1E1E1E),
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(24),
         ),
+        padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 0),
         child: Column(
-          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Menu Items
             Obx(() => Column(
-              children: items.entries
-                  .map((e) => _buildNavItem(e.key, e.value))
-                  .toList(),
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ...navItems.map((item) {
+                  final isSelected = controller.currentSection.value.toLowerCase() == item.label.toLowerCase();
+                  return _SidebarMenuItem(
+                    label: item.label,
+                    icon: item.icon,
+                    isSelected: isSelected,
+                    onTap: () {
+                      controller.scrollToSection(item.label.toLowerCase());
+                    },
+                    // Add dropdown children if needed
+                  );
+                }),
+              ],
             )),
             const Spacer(),
-            // Socials
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: Wrap(
-                spacing: 12,
-                children: const [
-                  FaIcon(FontAwesomeIcons.xTwitter, color: Colors.white, size: 18),
-                  FaIcon(FontAwesomeIcons.facebookF, color: Colors.white, size: 18),
-                  FaIcon(FontAwesomeIcons.instagram, color: Colors.white, size: 18),
-                  FaIcon(FontAwesomeIcons.linkedinIn, color: Colors.white, size: 18),
-                ],
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: socials.map(
+                  (icon) => _CircleIcon(icon: icon),
+                ).toList(),
               ),
-            )
+            ),
           ],
         ),
       ),
     );
   }
+}
 
-  Widget _buildNavItem(String label, IconData icon) {
-    final isSelected = controller.currentSection.value == label;
+// Data class for nav items
+class _NavItemData {
+  final String label;
+  final IconData icon;
+  _NavItemData(this.label, this.icon);
+}
 
-    return TextButton.icon(
-      onPressed: () => controller.scrollToSection(label),
-      icon: FaIcon(icon, color: isSelected ? Colors.blue : Colors.white, size: 18),
-      label: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 10),
-        child: Text(
-          label.capitalizeFirst!,
-          style: TextStyle(
-            color: isSelected ? Colors.blue : Colors.white,
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-          ),
+class _SidebarMenuItem extends StatelessWidget {
+  final String label;
+  final IconData icon;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _SidebarMenuItem({
+    required this.label,
+    required this.icon,
+    required this.isSelected,
+    required this.onTap,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final inactiveColor = const Color(0xFFB3B3B3);
+    final activeColor = Colors.white;
+    final textColor = isSelected ? activeColor : inactiveColor;
+    final fontWeight =
+        (isSelected || label == "Home") ? FontWeight.bold : FontWeight.normal;
+
+    return InkWell(
+      borderRadius: BorderRadius.circular(8),
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 2),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        child: Row(
+          children: [
+            FaIcon(
+              icon,
+              color: isSelected ? Colors.white : inactiveColor,
+              size: 21,
+            ),
+            const SizedBox(width: 18),
+            Text(
+              label,
+              style: TextStyle(
+                color: label == "Home"
+                    ? Colors.white
+                    : textColor,
+                fontWeight: fontWeight,
+                fontSize: label == "Home" ? 22 : 18,
+                letterSpacing: 0.3,
+              ),
+            ),
+            
+          ],
         ),
+      ),
+    );
+  }
+}
+
+class _CircleIcon extends StatelessWidget {
+  final IconData icon;
+  const _CircleIcon({required this.icon, Key? key}): super(key: key);
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 44, height: 44,
+      margin: const EdgeInsets.symmetric(horizontal: 4),
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: const Color(0xFF232323),
+      ),
+      child: Center(
+        child: FaIcon(icon, color: Colors.white, size: 20),
       ),
     );
   }

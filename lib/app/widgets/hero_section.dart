@@ -1,3 +1,4 @@
+import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
@@ -53,14 +54,14 @@ class _HeroSectionState extends State<HeroSection>
             children: [
               // Animated bubbles
               Positioned(
-                left: -100,
-                top: 100 + _bubbleAnimation1.value,
-                child: _bubble(300, const Color(0xFF2A2A2A)),
+                left: 50,
+                top: 350 + _bubbleAnimation1.value,
+                child: _bubble(200, const Color(0xFF2A2A2A)),
               ),
               Positioned(
-                right: -60,
+                right: 100,
                 top: 150 - _bubbleAnimation2.value,
-                child: _bubble(200, const Color(0xFF1C1C1C)),
+                child: _bubble(250, const Color(0xFF1C1C1C)),
               ),
 
               // Main centered content
@@ -82,49 +83,60 @@ class _HeroSectionState extends State<HeroSection>
                               ? CrossAxisAlignment.start
                               : CrossAxisAlignment.center,
                           children: [
-                            Text(
-                              "SnapFolio",
-                              style: TextStyle(
-                                fontSize: 40,
-                                color: Colors.white,
-                                fontWeight: FontWeight.w900,
-                              ),
-                            ),
+                          
                             const SizedBox(height: 8),
                             Text(
                               "Mohammed Asif",
                               style: TextStyle(
-                                fontSize: 28,
+                                fontSize: 40,
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
                             const SizedBox(height: 8),
                             RichText(
-                              text: const TextSpan(
-                                style: TextStyle(fontSize: 20),
-                                children: [
-                                  TextSpan(
-                                      text: "I'm a ",
-                                      style: TextStyle(color: Colors.white)),
-                                  TextSpan(
-                                    text: "Flutter Dev",
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      decoration: TextDecoration.underline,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
+  text: TextSpan(
+    style: const TextStyle(fontSize: 20),
+    children: [
+      const TextSpan(
+        text: "I'm a ",
+        style: TextStyle(color: Colors.white),
+      ),
+      WidgetSpan(
+        alignment: PlaceholderAlignment.middle,
+        child: SizedBox(
+          height: 30, // adjust for your font size
+          child: AnimatedTextKit(
+            animatedTexts: [
+              TyperAnimatedText(
+                'Flutter Dev',
+                textStyle: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  decoration: TextDecoration.underline,
+                  fontSize: 20,
+                ),
+                speed: const Duration(milliseconds: 150),
+              ),
+            ],
+            isRepeatingAnimation: true, // loop the animation
+            repeatForever: true,        // repeat infinitely
+            pause: const Duration(milliseconds: 500),
+          ),
+        ),
+      ),
+    ],
+  ),
+),
+
+
                             const SizedBox(height: 24),
                             const Text(
                               "Passionate about creating exceptional digital experiences that\n"
                                   "blend innovative design with functional development. Let's bring your vision to life.",
                               style: TextStyle(
                                   color: Colors.white70, height: 1.6),
-                              textAlign: TextAlign.center,
+                              textAlign: TextAlign.justify,
                             ),
                             const SizedBox(height: 32),
                             Wrap(
@@ -132,54 +144,104 @@ class _HeroSectionState extends State<HeroSection>
                               runSpacing: 10,
                               alignment: WrapAlignment.center,
                               children: [
-                                ElevatedButton(
-                                  onPressed: () {},
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.white,
-                                    foregroundColor: Colors.black,
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 24, vertical: 14),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(30),
-                                    ),
-                                  ),
-                                  child: const Text(
-                                    "View My Work",
-                                    style:
-                                    TextStyle(fontWeight: FontWeight.bold),
-                                  ),
-                                ),
-                                OutlinedButton(
-                                  onPressed: () {},
-                                  style: OutlinedButton.styleFrom(
-                                    side:
-                                    const BorderSide(color: Colors.white),
-                                    foregroundColor: Colors.white,
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 24, vertical: 14),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(30),
-                                    ),
-                                  ),
-                                  child: const Text("Get In Touch"),
-                                ),
+                                // Place this inside your widget tree
+
+Row(
+  mainAxisAlignment: MainAxisAlignment.center, // or center as needed
+  children: [
+    // Filled Elevated Button ("View My Work")
+    ElevatedButton(
+      onPressed: () {},
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.white,
+        foregroundColor: const Color(0xFF2C0000), // deep brownish in image
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(40), // pill shape
+        ),
+        elevation: 5, // flat look
+      ),
+      child: const Text(
+        "View My Work",
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+          fontSize: 18,
+          letterSpacing: 1,
+        ),
+      ),
+    ),
+
+    const SizedBox(width: 32), // spacing between buttons
+
+    // Custom Glow Outlined Button ("Get In Touch")
+    OutlinedButton(
+  onPressed: () {
+    // Your onPressed action
+  },
+  style: ButtonStyle(
+    backgroundColor: WidgetStateProperty.resolveWith<Color?>(
+      (states) {
+        if (states.contains(WidgetState.hovered)) {
+          return Colors.white;
+        }
+        return Colors.transparent;
+      },
+    ),
+    foregroundColor: WidgetStateProperty.resolveWith<Color?>(
+      (states) {
+        if (states.contains(WidgetState.hovered)) {
+          return const Color(0xFF2C0000); // Deep brown, matches your screenshot
+        }
+        return Colors.white;
+      },
+    ),
+    side: WidgetStateProperty.all(const BorderSide(color: Colors.white, width: 2)),
+    elevation: WidgetStateProperty.resolveWith<double>(
+      (states) {
+        if (states.contains(WidgetState.hovered)) {
+          return 8.0; // Increase shadow on hover
+        }
+        return 0.0;
+      },
+    ),
+    padding: WidgetStateProperty.all(const EdgeInsets.symmetric(
+      horizontal: 24, vertical: 24
+    )),
+    shape: WidgetStateProperty.all(
+      RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(40),
+      ),
+    ),
+    textStyle: WidgetStateProperty.all(const TextStyle(
+      fontWeight: FontWeight.bold,
+      fontSize: 18,
+      letterSpacing: 1,
+    )),
+  ),
+  child: const Text("Get In Touch"),
+),
+
+  ],
+)
+
+
                               ],
                             ),
-                            const SizedBox(height: 30),
-                            Wrap(
-                              spacing: 18,
-                              alignment: WrapAlignment.center,
-                              children: const [
-                                FaIcon(FontAwesomeIcons.xTwitter,
-                                    color: Colors.white, size: 18),
-                                FaIcon(FontAwesomeIcons.facebookF,
-                                    color: Colors.white, size: 18),
-                                FaIcon(FontAwesomeIcons.instagram,
-                                    color: Colors.white, size: 18),
-                                FaIcon(FontAwesomeIcons.linkedinIn,
-                                    color: Colors.white, size: 18),
-                              ],
-                            )
+                            // const SizedBox(height: 30),
+                            // Wrap(
+                            //   spacing: 18,
+                            //   alignment: WrapAlignment.center,
+                            //   children: const [
+                            //     FaIcon(FontAwesomeIcons.xTwitter,
+                            //         color: Colors.white, size: 18),
+                            //     FaIcon(FontAwesomeIcons.facebookF,
+                            //         color: Colors.white, size: 18),
+                            //     FaIcon(FontAwesomeIcons.instagram,
+                            //         color: Colors.white, size: 18),
+                            //     FaIcon(FontAwesomeIcons.linkedinIn,
+                            //         color: Colors.white, size: 18),
+                            //   ],
+                            // )
                           ],
                         ),
                       ),
@@ -189,26 +251,46 @@ class _HeroSectionState extends State<HeroSection>
                       // Right image
                       Expanded(
                         flex: 1,
-                        child: Container(
+                        child: Stack(
+                          children: [
+                            Container(
+                                                                width: 320,
+                                  height: 400,
+
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(20),
                             boxShadow: const [
                               BoxShadow(
-                                color: Colors.black54,
-                                offset: Offset(4, 6),
-                                blurRadius: 10,
+                                color: const Color(0xFF2A2A2A),
+                                offset: Offset(20, 20),
+                                blurRadius: 2,
                               )
                             ],
                           ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(20),
-                            child: Image.network(
-                              "https://images.pexels.com/photos/2379005/pexels-photo-2379005.jpeg",
-                              width: 320,
-                              height: 400,
-                              fit: BoxFit.cover,
+                    
+                        ),
+                            Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(20),
+                                boxShadow: const [
+                                  BoxShadow(
+                                    color: Colors.black54,
+                                    offset: Offset(4, 6),
+                                    blurRadius: 10,
+                                  )
+                                ],
+                              ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(20),
+                                child: Image.network(
+                                  "https://images.pexels.com/photos/2379005/pexels-photo-2379005.jpeg",
+                                  width: 320,
+                                  height: 400,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
                             ),
-                          ),
+                          ],
                         ),
                       ),
                     ],

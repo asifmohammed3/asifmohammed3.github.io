@@ -8,6 +8,7 @@ class HomeController extends GetxController {
   final sectionKeys = {
     'home': GlobalKey(),
     'about': GlobalKey(),
+    'skills': GlobalKey(),
     'resume': GlobalKey(),
     'portfolio': GlobalKey(),
     'services': GlobalKey(),

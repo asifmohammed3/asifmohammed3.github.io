@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:portfolio_website/app/widgets/about_section.dart';
+import 'package:portfolio_website/app/widgets/contact_section.dart';
 import 'package:portfolio_website/app/widgets/hero_section.dart';
+import 'package:portfolio_website/app/widgets/resume_section.dart';
 import 'package:portfolio_website/app/widgets/sidebar_menu.dart';
 import 'package:portfolio_website/app/modules/home/controllers/home_controller.dart';
+import 'package:portfolio_website/app/widgets/skills_section.dart';
 
 class HomeView extends GetView<HomeController> {
   const HomeView({super.key});
@@ -15,15 +19,16 @@ class HomeView extends GetView<HomeController> {
     return Scaffold(
       backgroundColor: Colors.black,
       drawer: isMobile ? SidebarMenu() : null,
+    
       appBar: isMobile
           ? AppBar(
         title: const Text('Portfolio'),
-        backgroundColor: Colors.black,
+        backgroundColor: const Color.fromARGB(255, 40, 39, 39),
       )
           : null,
       body: Row(
         children: [
-          if (!isMobile) SidebarMenu(),
+          if (!isMobile) SidebarMenu().paddingAll(24),
           Expanded(
             child: SingleChildScrollView(
               controller: controller.scrollController,
@@ -35,23 +40,40 @@ class HomeView extends GetView<HomeController> {
                   ),
                   KeyedSubtree(
                     key: controller.sectionKeys['about'],
-                    child: const SizedBox(height: 600, child: Center(child: Text('About', style: TextStyle(color: Colors.white)))),
-                  ), KeyedSubtree(
+                    child: ProfileCard()
+                  ), 
+                  KeyedSubtree(
+                    key: controller.sectionKeys['skills'],
+                    child: SkillsSection(),
+                  ),
+                  KeyedSubtree(
                     key: controller.sectionKeys['resume'],
-                    child: const SizedBox(height: 600, child: Center(child: Text('Resume', style: TextStyle(color: Colors.white)))),
+                    child:Row(
+  crossAxisAlignment: CrossAxisAlignment.start,
+  children: [
+    const SizedBox(width: 12),
+    
+    // ✅ Wrap with fixed width
+    const SizedBox(
+      width: 360,
+      child: ResumeProfileCard(),
+    ),
+    
+    const SizedBox(width: 12),
+    
+    const Expanded(child: ResumeRightPanel()),
+  ],
+)
+
                   ),
                   KeyedSubtree(
                     key: controller.sectionKeys['portfolio'],
                     child: const SizedBox(height: 600, child: Center(child: Text('Portfolio', style: TextStyle(color: Colors.white)))),
-                  ), KeyedSubtree(
-                    key: controller.sectionKeys['services'],
-                    child: const SizedBox(height: 600, child: Center(child: Text('Services', style: TextStyle(color: Colors.white)))),
-                  ),
+                  ), 
                   KeyedSubtree(
                     key: controller.sectionKeys['contact'],
-                    child: const SizedBox(height: 600, child: Center(child: Text('Contact', style: TextStyle(color: Colors.white)))),
+                    child: ContactSection(),
                   ),
-                  // Add more sections here...
                 ],
               ),
             ),
