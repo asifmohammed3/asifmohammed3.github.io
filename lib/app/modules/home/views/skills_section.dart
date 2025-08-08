@@ -1,21 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:portfolio_website/app/modules/home/controllers/home_controller.dart';
 
-class SkillsSection extends StatelessWidget {
-  const SkillsSection({Key? key}) : super(key: key);
+import '../../../models/models.dart';
+import '../../../widgets/LinedTitle.dart';
+
+class SkillsSection extends GetView<HomeController> {
+  const SkillsSection({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // Sample data for front and back-end
-    final frontEndSkills = [
-      Skill(label: "HTML/CSS", level: 95),
-      Skill(label: "JavaScript", level: 85),
-      Skill(label: "React", level: 80),
-    ];
-    final backEndSkills = [
-      Skill(label: "Node.js", level: 75),
-      Skill(label: "Python", level: 70),
-      Skill(label: "SQL", level: 65),
-    ];
+    final half = (controller.skills.length / 2).ceil();
+    final firstColumn = controller.skills.take(half).toList();
+    final secondColumn = controller.skills.skip(half).toList();
 
     return Center(
       child: Container(
@@ -23,45 +20,27 @@ class SkillsSection extends StatelessWidget {
         child: Column(
           children: [
             // Title
-            const Text(
-              'Skills',
-              style: TextStyle(
+            LinedTitle(
+              text: "Skills",
+              lineColor: Colors.white,
+              textStyle: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 32,
                 color: Colors.white,
               ),
             ),
-            const SizedBox(height: 6),
-            const Text(
-              'Necessitatibus eius consequatur ex aliquid fuga eum quidem sint consectetur velit',
-              style: TextStyle(
-                color: Colors.white60,
-                fontSize: 15,
-              ),
-              textAlign: TextAlign.center,
-            ),
             const SizedBox(height: 38),
-            // Skill Columns
+
+            // Skills Grid (Dynamic)
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Front-end
-                Expanded(
-                  child: _SkillColumn(
-                    title: "Front-end Development",
-                    skills: frontEndSkills,
-                  ),
-                ),
+                Expanded(child: _SkillColumn(skills: firstColumn)),
                 const SizedBox(width: 42),
-                // Back-end
-                Expanded(
-                  child: _SkillColumn(
-                    title: "Back-end Development",
-                    skills: backEndSkills,
-                  ),
-                ),
+                Expanded(child: _SkillColumn(skills: secondColumn)),
               ],
             ),
+            const SizedBox(height: 50),
           ],
         ),
       ),
@@ -70,10 +49,9 @@ class SkillsSection extends StatelessWidget {
 }
 
 class _SkillColumn extends StatelessWidget {
-  final String title;
   final List<Skill> skills;
 
-  const _SkillColumn({required this.title, required this.skills, Key? key}) : super(key: key);
+  const _SkillColumn({required this.skills});
 
   @override
   Widget build(BuildContext context) {
@@ -86,36 +64,20 @@ class _SkillColumn extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-              fontSize: 21,
-            ),
-          ),
-          const SizedBox(height: 22),
           for (var skill in skills) ...[
             _SkillBar(skill: skill),
             const SizedBox(height: 24),
-          ]
+          ],
         ],
       ),
     );
   }
 }
 
-class Skill {
-  final String label;
-  final int level; // 0-100
-
-  Skill({required this.label, required this.level});
-}
-
 class _SkillBar extends StatelessWidget {
   final Skill skill;
 
-  const _SkillBar({required this.skill, Key? key}) : super(key: key);
+  const _SkillBar({required this.skill});
 
   @override
   Widget build(BuildContext context) {
@@ -141,7 +103,7 @@ class _SkillBar extends StatelessWidget {
                 fontWeight: FontWeight.bold,
                 fontSize: 15,
               ),
-            )
+            ),
           ],
         ),
         const SizedBox(height: 8),

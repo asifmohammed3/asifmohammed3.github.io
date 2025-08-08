@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:portfolio_website/app/widgets/about_section.dart';
-import 'package:portfolio_website/app/widgets/contact_section.dart';
-import 'package:portfolio_website/app/widgets/hero_section.dart';
-import 'package:portfolio_website/app/widgets/resume_section.dart';
+import 'package:portfolio_website/app/modules/home/views/about_section.dart';
+import 'package:portfolio_website/app/modules/home/views/contact_section.dart';
+import 'package:portfolio_website/app/modules/home/views/hero_section.dart';
+import 'package:portfolio_website/app/modules/home/views/portfolio_section.dart';
+import 'package:portfolio_website/app/modules/home/views/resume_section.dart';
 import 'package:portfolio_website/app/widgets/sidebar_menu.dart';
 import 'package:portfolio_website/app/modules/home/controllers/home_controller.dart';
-import 'package:portfolio_website/app/widgets/skills_section.dart';
+import 'package:portfolio_website/app/modules/home/views/skills_section.dart';
+
+import '../../../widgets/LinedTitle.dart';
 
 class HomeView extends GetView<HomeController> {
   const HomeView({super.key});
@@ -19,12 +22,12 @@ class HomeView extends GetView<HomeController> {
     return Scaffold(
       backgroundColor: Colors.black,
       drawer: isMobile ? SidebarMenu() : null,
-    
+
       appBar: isMobile
           ? AppBar(
-        title: const Text('Portfolio'),
-        backgroundColor: const Color.fromARGB(255, 40, 39, 39),
-      )
+              title: const Text('Portfolio'),
+              backgroundColor: const Color.fromARGB(255, 40, 39, 39),
+            )
           : null,
       body: Row(
         children: [
@@ -40,36 +43,20 @@ class HomeView extends GetView<HomeController> {
                   ),
                   KeyedSubtree(
                     key: controller.sectionKeys['about'],
-                    child: ProfileCard()
-                  ), 
+                    child: ProfileCard(),
+                  ),
                   KeyedSubtree(
                     key: controller.sectionKeys['skills'],
                     child: SkillsSection(),
                   ),
                   KeyedSubtree(
                     key: controller.sectionKeys['resume'],
-                    child:Row(
-  crossAxisAlignment: CrossAxisAlignment.start,
-  children: [
-    const SizedBox(width: 12),
-    
-    // ✅ Wrap with fixed width
-    const SizedBox(
-      width: 360,
-      child: ResumeProfileCard(),
-    ),
-    
-    const SizedBox(width: 12),
-    
-    const Expanded(child: ResumeRightPanel()),
-  ],
-)
-
+                    child: ResumeSection(),
                   ),
                   KeyedSubtree(
                     key: controller.sectionKeys['portfolio'],
-                    child: const SizedBox(height: 600, child: Center(child: Text('Portfolio', style: TextStyle(color: Colors.white)))),
-                  ), 
+                    child: const PortfolioSection(),
+                  ),
                   KeyedSubtree(
                     key: controller.sectionKeys['contact'],
                     child: ContactSection(),
@@ -77,7 +64,7 @@ class HomeView extends GetView<HomeController> {
                 ],
               ),
             ),
-          )
+          ),
         ],
       ),
     );

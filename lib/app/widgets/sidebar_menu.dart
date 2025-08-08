@@ -89,7 +89,6 @@ class _SidebarMenuItem extends StatelessWidget {
     required this.icon,
     required this.isSelected,
     required this.onTap,
-    super.key,
   });
 
   @override
@@ -135,7 +134,7 @@ class _SidebarMenuItem extends StatelessWidget {
 
 class _CircleIcon extends StatelessWidget {
   final IconData icon;
-  const _CircleIcon({required this.icon, Key? key}): super(key: key);
+  const _CircleIcon({required this.icon});
   @override
   Widget build(BuildContext context) {
     return Container(
