@@ -10,6 +10,7 @@ import 'package:portfolio_website/app/modules/home/controllers/home_controller.d
 import 'package:portfolio_website/app/modules/home/views/skills_section.dart';
 
 import '../../../widgets/LinedTitle.dart';
+import '../../../widgets/custom_hamburger.dart';
 
 class HomeView extends GetView<HomeController> {
   const HomeView({super.key});
@@ -25,10 +26,13 @@ class HomeView extends GetView<HomeController> {
 
       appBar: isMobile
           ? AppBar(
-              title: const Text('Portfolio'),
-              backgroundColor: const Color.fromARGB(255, 40, 39, 39),
+              backgroundColor: Colors.transparent,
+              automaticallyImplyLeading: false, // Remove default hamburger
+              actions: [CustomHamburger()],
+              elevation: 0,
             )
           : null,
+
       body: Row(
         children: [
           if (!isMobile) SidebarMenu().paddingAll(24),

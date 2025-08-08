@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:portfolio_website/app/routes/app_pages.dart';
 
 import '../../../data/api_models/portfolio_models.dart';
+import '../../../utils/responsive.dart';
 import '../../../widgets/LinedTitle.dart';
 import '../controllers/home_controller.dart';
 
@@ -13,63 +14,162 @@ class PortfolioSection extends GetView<HomeController> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        SizedBox(height: 50),
-
+        const SizedBox(height: 50),
         LinedTitle(text: "Portfolio"),
         const SizedBox(height: 8),
         Text(
           "jadhfhsdfghsdvgf safhbsdhjf sdifhgbdshfg difhsdbf",
+          // Replace with your description
           textAlign: TextAlign.center,
           style: const TextStyle(color: Colors.white70, fontSize: 14),
         ),
         const SizedBox(height: 16),
-        Row(
-          children: [
-            // Sidebar
-            Container(
-              width: 190,
-              color: Colors.black87,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _tabItem("All Projects", PortfolioTab.all),
-                  _tabItem("Professional", PortfolioTab.professional),
-                  _tabItem("Personal", PortfolioTab.personal),
-                  _tabItem("Academic", PortfolioTab.academic),
-                ],
-              ),
+
+        // Responsive layout selector
+        Obx(
+          () => Responsive(
+            mobile: _buildMobileLayout(),
+            tablet: _buildTabletLayout(),
+            desktop: _buildDesktopLayout(),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // Mobile layout: sidebar as horizontal scroll tabs + project grid below
+  Widget _buildMobileLayout() {
+    final projects = controller.filteredProjects;
+
+    return Column(
+      children: [
+        SizedBox(height: 60, child: _buildMobileTabs()),
+
+        const SizedBox(height: 16),
+        if (projects.isEmpty)
+          Center(
+            child: Text(
+              'No projects found.',
+              style: TextStyle(color: Colors.white70, fontSize: 16),
             ),
-            // Content panel
-            Obx(() {
-              final projects = controller.filteredProjects;
-              if (projects.isEmpty) {
-                return Center(
+          )
+        else
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: projects.length,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 1,
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
+                childAspectRatio: 1.2,
+              ),
+              itemBuilder: (context, index) {
+                final project = projects[index];
+                return _projectCard(project);
+              },
+            ),
+          ),
+      ],
+    );
+  }
+
+  // Tablet layout: sidebar vertical + project grid next to it
+  Widget _buildTabletLayout() {
+    final projects = controller.filteredProjects;
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 190,
+          color: Colors.black87,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _tabItem("All Projects", PortfolioTab.all),
+              _tabItem("Professional", PortfolioTab.professional),
+              _tabItem("Personal", PortfolioTab.personal),
+              _tabItem("Academic", PortfolioTab.academic),
+            ],
+          ),
+        ),
+        Expanded(
+          child: projects.isEmpty
+              ? Center(
                   child: Text(
                     'No projects found.',
                     style: TextStyle(color: Colors.white70, fontSize: 16),
                   ),
-                );
-              }
-              return Expanded(
-                child: GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
+                )
+              : Padding(
                   padding: const EdgeInsets.all(24),
-                  itemCount: projects.length,
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2, // Responsive columns
-                    crossAxisSpacing: 16,
-                    mainAxisSpacing: 16,
-                    childAspectRatio: 1.2, // Card shape
+                  child: GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: projects.length,
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 16,
+                          mainAxisSpacing: 16,
+                          childAspectRatio: 1.2,
+                        ),
+                    itemBuilder: (context, index) =>
+                        _projectCard(projects[index]),
                   ),
-                  itemBuilder: (context, index) {
-                    final project = projects[index];
-                    return _projectCard(project);
-                  },
                 ),
-              );
-            }),
-          ],
+        ),
+      ],
+    );
+  }
+
+  // Desktop layout: same as tablet but with more columns in grid
+  Widget _buildDesktopLayout() {
+    final projects = controller.filteredProjects;
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 190,
+          color: Colors.black87,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _tabItem("All Projects", PortfolioTab.all),
+              _tabItem("Professional", PortfolioTab.professional),
+              _tabItem("Personal", PortfolioTab.personal),
+              _tabItem("Academic", PortfolioTab.academic),
+            ],
+          ),
+        ),
+        Expanded(
+          child: projects.isEmpty
+              ? Center(
+                  child: Text(
+                    'No projects found.',
+                    style: TextStyle(color: Colors.white70, fontSize: 16),
+                  ),
+                )
+              : Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: projects.length,
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 16,
+                      mainAxisSpacing: 16,
+                      childAspectRatio: 1.2,
+                    ),
+                    itemBuilder: (context, index) =>
+                        _projectCard(projects[index]),
+                  ),
+                ),
         ),
       ],
     );
@@ -81,6 +181,7 @@ class PortfolioSection extends GetView<HomeController> {
       return InkWell(
         onTap: () => controller.setPortfolioTab(tab),
         child: Container(
+          margin: const EdgeInsets.all(8),
           padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 24),
           decoration: BoxDecoration(
             color: isSelected ? Colors.white12 : Colors.transparent,
@@ -93,6 +194,67 @@ class PortfolioSection extends GetView<HomeController> {
               fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
               fontSize: 16,
             ),
+          ),
+        ),
+      );
+    });
+  }
+
+  Widget _buildMobileTabs() {
+    final tabs = [
+      {"title": "All Projects", "tab": PortfolioTab.all},
+      {"title": "Professional", "tab": PortfolioTab.professional},
+      {"title": "Personal", "tab": PortfolioTab.personal},
+      {"title": "Academic", "tab": PortfolioTab.academic},
+    ];
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      child: Row(
+        children: tabs.map((tabData) {
+          return _tabItemMobile(
+            tabData["title"]! as String,
+            tabData["tab"]! as PortfolioTab,
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _tabItemMobile(String title, PortfolioTab tab) {
+    return Obx(() {
+      final isSelected = controller.selectedPortfolioTab.value == tab;
+      return GestureDetector(
+        onTap: () => controller.setPortfolioTab(tab),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 22),
+          decoration: BoxDecoration(
+            color: isSelected ? Colors.white : Colors.black87,
+            border: Border.all(
+              color: isSelected ? Colors.white : Colors.white30,
+              width: isSelected ? 2.5 : 1.2,
+            ),
+            borderRadius: BorderRadius.circular(14),
+            boxShadow: isSelected
+                ? [
+                    BoxShadow(
+                      color: Colors.white24,
+                      blurRadius: 12,
+                      offset: Offset(0, 2),
+                    ),
+                  ]
+                : [],
+          ),
+          child: AnimatedDefaultTextStyle(
+            duration: const Duration(milliseconds: 200),
+            style: TextStyle(
+              color: isSelected ? Colors.black : Colors.white70,
+              fontWeight: isSelected ? FontWeight.w700 : FontWeight.normal,
+              fontSize: 16,
+            ),
+            child: Text(title),
           ),
         ),
       );
@@ -117,11 +279,9 @@ class PortfolioSection extends GetView<HomeController> {
         borderRadius: BorderRadius.circular(24),
         child: Stack(
           children: [
-            // Background image
             Positioned.fill(
               child: Image.network(project.imgUrl, fit: BoxFit.cover),
             ),
-            // Gradient overlay
             Positioned.fill(
               child: Container(
                 decoration: BoxDecoration(
@@ -138,7 +298,6 @@ class PortfolioSection extends GetView<HomeController> {
                 ),
               ),
             ),
-            // Content
             Positioned(
               left: 24,
               bottom: 24,
@@ -147,7 +306,6 @@ class PortfolioSection extends GetView<HomeController> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Category tag
                   Text(
                     project.type.name.toUpperCase(),
                     style: const TextStyle(
@@ -158,7 +316,6 @@ class PortfolioSection extends GetView<HomeController> {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  // Title
                   Text(
                     project.title,
                     style: const TextStyle(
@@ -168,10 +325,8 @@ class PortfolioSection extends GetView<HomeController> {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  // Action buttons
                   Row(
                     children: [
-                      // Arrow button
                       InkWell(
                         onTap: () {
                           Get.toNamed(

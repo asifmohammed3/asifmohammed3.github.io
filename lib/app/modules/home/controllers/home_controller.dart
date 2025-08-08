@@ -18,6 +18,11 @@ class HomeController extends GetxController with GetTickerProviderStateMixin {
   late Animation<double> bubbleAnimation1;
   late Animation<double> bubbleAnimation2;
 
+  final nameController = TextEditingController();
+  final emailController = TextEditingController();
+  final subjectController = TextEditingController();
+  final messageController = TextEditingController();
+
   final sectionKeys = {
     'home': GlobalKey(),
     'about': GlobalKey(),
@@ -125,6 +130,24 @@ class HomeController extends GetxController with GetTickerProviderStateMixin {
     Skill(label: "Node.js", level: 75),
     Skill(label: "Python", level: 70),
     Skill(label: "SQL", level: 65),
+  ];
+
+  final List<ContactItemModel> contactItems = [
+    ContactItemModel(
+      icon: Icons.location_on_outlined,
+      title: "Our Location",
+      text: "A108 Adam Street\nNew York, NY 535022",
+    ),
+    ContactItemModel(
+      icon: Icons.phone_outlined,
+      title: "Phone Number",
+      text: "+1 5589 55488 55\n+1 6678 254445 41",
+    ),
+    ContactItemModel(
+      icon: Icons.email_outlined,
+      title: "Email Address",
+      text: "info@example.com\ncontact@example.com",
+    ),
   ];
 
   final resumeSectionData = ResumeSectionModel(

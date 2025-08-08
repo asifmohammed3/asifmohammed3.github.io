@@ -1,4 +1,6 @@
 // skill_model.dart
+import 'package:flutter/material.dart';
+
 class Skill {
   final String label;
   final int level; // out of 100
@@ -123,5 +125,17 @@ class ResumeSectionModel {
     required this.experiences,
     required this.educations,
     required this.certifications,
+  });
+}
+
+class ContactItemModel {
+  final IconData icon;
+  final String title;
+  final String text;
+
+  ContactItemModel({
+    required this.icon,
+    required this.title,
+    required this.text,
   });
 }

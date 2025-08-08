@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../../models/models.dart';
+import '../../../utils/responsive.dart';
 import '../../../widgets/LinedTitle.dart';
 import '../../../widgets/dotted_timeline.dart';
 import '../controllers/home_controller.dart';
@@ -25,7 +26,6 @@ class ResumeSection extends GetView<HomeController> {
             color: Colors.white,
           ),
         ),
-
         const SizedBox(height: 8),
         Text(
           data.subtitle,
@@ -34,23 +34,65 @@ class ResumeSection extends GetView<HomeController> {
         ),
         const SizedBox(height: 8),
 
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(width: 12),
-            SizedBox(
-              width: 360,
-              child: ResumeProfileCard(profile: data.profile),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: ResumeRightPanel(
-                experiences: data.experiences,
-                educations: data.educations,
-                certifications: data.certifications,
-              ),
-            ),
-          ],
+        Responsive(
+          mobile: _buildMobileLayout(data),
+          tablet: _buildTabletLayout(data),
+          desktop: _buildDesktopLayout(data),
+        ),
+      ],
+    );
+  }
+
+  // Mobile layout: typically stacked vertically with smaller widths
+  Widget _buildMobileLayout(dynamic data) {
+    return Column(
+      children: [
+        ResumeProfileCard(profile: data.profile),
+
+        const SizedBox(height: 16),
+
+        ResumeRightPanel(
+          experiences: data.experiences,
+          educations: data.educations,
+          certifications: data.certifications,
+        ),
+      ],
+    );
+  }
+
+  // Tablet layout: can be two columns but adjusted widths and spacing
+  Widget _buildTabletLayout(dynamic data) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(flex: 4, child: ResumeProfileCard(profile: data.profile)),
+        const SizedBox(width: 16),
+        Expanded(
+          flex: 7,
+          child: ResumeRightPanel(
+            experiences: data.experiences,
+            educations: data.educations,
+            certifications: data.certifications,
+          ),
+        ),
+      ],
+    );
+  }
+
+  // Desktop layout: wide with generous spacing
+  Widget _buildDesktopLayout(dynamic data) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(width: 12),
+        SizedBox(width: 360, child: ResumeProfileCard(profile: data.profile)),
+        const SizedBox(width: 12),
+        Expanded(
+          child: ResumeRightPanel(
+            experiences: data.experiences,
+            educations: data.educations,
+            certifications: data.certifications,
+          ),
         ),
       ],
     );

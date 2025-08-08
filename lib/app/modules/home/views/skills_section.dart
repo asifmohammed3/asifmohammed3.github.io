@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:portfolio_website/app/modules/home/controllers/home_controller.dart';
 
 import '../../../models/models.dart';
+import '../../../utils/responsive.dart';
 import '../../../widgets/LinedTitle.dart';
 
 class SkillsSection extends GetView<HomeController> {
@@ -32,14 +33,26 @@ class SkillsSection extends GetView<HomeController> {
             const SizedBox(height: 38),
 
             // Skills Grid (Dynamic)
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(child: _SkillColumn(skills: firstColumn)),
-                const SizedBox(width: 42),
-                Expanded(child: _SkillColumn(skills: secondColumn)),
-              ],
+            Responsive(
+              mobile: _SkillColumn(skills: controller.skills),
+              desktop: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(child: _SkillColumn(skills: firstColumn)),
+                  const SizedBox(width: 42),
+                  Expanded(child: _SkillColumn(skills: secondColumn)),
+                ],
+              ),
+              tablet: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(child: _SkillColumn(skills: firstColumn)),
+                  const SizedBox(width: 42),
+                  Expanded(child: _SkillColumn(skills: secondColumn)),
+                ],
+              ),
             ),
+
             const SizedBox(height: 50),
           ],
         ),
@@ -108,28 +121,34 @@ class _SkillBar extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         // Animate progress bar
-        TweenAnimationBuilder<double>(
-          duration: const Duration(milliseconds: 800),
-          tween: Tween<double>(begin: 0, end: skill.level / 100),
-          builder: (context, value, _) {
-            return Stack(
-              children: [
-                Container(
-                  height: 7,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.09),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                Container(
-                  height: 7,
-                  width: MediaQuery.of(context).size.width * 0.31 * value,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-              ],
+        LayoutBuilder(
+          builder: (context, constraints) {
+            // constraints.maxWidth gives actual available width
+            return TweenAnimationBuilder<double>(
+              duration: const Duration(milliseconds: 800),
+              tween: Tween<double>(begin: 0, end: skill.level / 100),
+              builder: (context, value, _) {
+                return Stack(
+                  children: [
+                    Container(
+                      height: 7,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.09),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    Container(
+                      height: 7,
+                      width: constraints.maxWidth * value,
+                      // Use actual available width here
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                  ],
+                );
+              },
             );
           },
         ),

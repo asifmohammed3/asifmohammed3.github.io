@@ -357,21 +357,13 @@ class ResumeInfoCard extends StatelessWidget {
                 ),
           const SizedBox(height: 34),
           // Buttons section
-          isMobile
-              ? Column(
-                  children: [
-                    _buildDownloadButton(),
-                    const SizedBox(height: 12),
-                    _buildTalkButton(),
-                  ],
-                )
-              : Row(
-                  children: [
-                    Expanded(child: _buildDownloadButton()),
-                    const SizedBox(width: 20),
-                    Expanded(child: _buildTalkButton()),
-                  ],
-                ),
+          Row(
+            children: [
+              Expanded(child: _buildDownloadButton()),
+              const SizedBox(width: 20),
+              Expanded(child: _buildTalkButton()),
+            ],
+          ),
         ],
       ),
     );
