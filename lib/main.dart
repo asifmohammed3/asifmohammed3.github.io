@@ -28,6 +28,25 @@ class MyApp extends StatelessWidget {
       title: 'My Portfolio',
       initialRoute: AppPages.INITIAL,
       getPages: AppPages.routes,
+      theme: ThemeData.dark().copyWith(
+        primaryColor: Colors.white,
+        scaffoldBackgroundColor: Colors.black,
+        inputDecorationTheme: InputDecorationTheme(
+          labelStyle: const TextStyle(color: Colors.white70),
+          hintStyle: const TextStyle(color: Colors.white38),
+          enabledBorder: OutlineInputBorder(
+            borderSide: const BorderSide(color: Colors.white54),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderSide: const BorderSide(color: Colors.white),
+            borderRadius: BorderRadius.circular(8),
+          ),
+        ),
+      ),
+      darkTheme: ThemeData.dark(),
+      themeMode: ThemeMode.dark,
+      // Always dark mode
       builder: (context, child) {
         // Wrap the entire app inside a Stack with OverlayLoader on top
         return Stack(

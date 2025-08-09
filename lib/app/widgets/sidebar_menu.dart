@@ -3,6 +3,8 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:portfolio_website/app/modules/home/controllers/home_controller.dart';
 
+import '../routes/app_pages.dart';
+
 class SidebarMenu extends GetView<HomeController> {
   SidebarMenu({super.key});
 
@@ -58,6 +60,31 @@ class SidebarMenu extends GetView<HomeController> {
               ),
             ),
             const Spacer(),
+            // 🆕 Admin / Edit button
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+              child: ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.orangeAccent,
+                  foregroundColor: Colors.black87,
+                  minimumSize: const Size(double.infinity, 46),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                icon: const Icon(Icons.edit),
+                label: const Text(
+                  'Edit Site',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                onPressed: () {
+                  // Navigate to admin login or admin panel
+                  Get.toNamed(Routes.ADMIN_AUTH);
+                  // Or check login status here to go directly to admin panel if already logged in
+                },
+              ),
+            ),
+
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8),
               child: Row(
