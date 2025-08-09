@@ -13,16 +13,16 @@ Future<void> main() async {
   String supabaseUrl;
   String supabaseAnonKey;
 
-  if (kIsWeb) {
-    // Web: use --dart-define
+  // if (kIsWeb) {
+  //   // Web: use --dart-define
     supabaseUrl = const String.fromEnvironment('SUPABASE_URL');
     supabaseAnonKey = const String.fromEnvironment('SUPABASE_ANON_KEY');
-  } else {
-    // Mobile/Desktop: use .env file
-    await dotenv.load(fileName: ".env");
-    supabaseUrl = dotenv.env['SUPABASE_URL'] ?? '';
-    supabaseAnonKey = dotenv.env['SUPABASE_ANON_KEY'] ?? '';
-  }
+  // } else {
+  //   // Mobile/Desktop: use .env file
+  //   await dotenv.load(fileName: ".env");
+  //   supabaseUrl = dotenv.env['SUPABASE_URL'] ?? '';
+  //   supabaseAnonKey = dotenv.env['SUPABASE_ANON_KEY'] ?? '';
+  // }
 
   if (supabaseUrl.isEmpty || supabaseAnonKey.isEmpty) {
     throw Exception(
