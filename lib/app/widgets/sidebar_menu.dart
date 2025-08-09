@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:portfolio_website/app/modules/home/controllers/home_controller.dart';
-
 import '../routes/app_pages.dart';
 
 class SidebarMenu extends GetView<HomeController> {
@@ -18,11 +18,20 @@ class SidebarMenu extends GetView<HomeController> {
     _NavItemData("Contact", FontAwesomeIcons.envelope),
   ];
 
-  // Socials
+  // Social links (icon + url)
   final socials = [
-    FontAwesomeIcons.facebookF,
-    FontAwesomeIcons.instagram,
-    FontAwesomeIcons.linkedinIn,
+    {
+      'icon': FontAwesomeIcons.facebookF,
+      'url': 'https://www.facebook.com/mohammedasif.parambil/',
+    },
+    {
+      'icon': FontAwesomeIcons.instagram,
+      'url': 'https://www.instagram.com/_asif_mohammed_/',
+    },
+    {
+      'icon': FontAwesomeIcons.linkedinIn,
+      'url': 'https://www.linkedin.com/in/mohammedasifp/',
+    },
   ];
 
   @override
@@ -38,6 +47,7 @@ class SidebarMenu extends GetView<HomeController> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Navigation Items
             Obx(
               () => Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -53,51 +63,68 @@ class SidebarMenu extends GetView<HomeController> {
                       onTap: () {
                         controller.scrollToSection(item.label.toLowerCase());
                       },
-                      // Add dropdown children if needed
                     );
                   }),
                 ],
               ),
             ),
             const Spacer(),
-            // 🆕 Admin / Edit button
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-              child: ElevatedButton.icon(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orangeAccent,
-                  foregroundColor: Colors.black87,
-                  minimumSize: const Size(double.infinity, 46),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                icon: const Icon(Icons.edit),
-                label: const Text(
-                  'Edit Site',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                onPressed: () {
-                  // Navigate to admin login or admin panel
-                  Get.toNamed(Routes.ADMIN_AUTH);
-                  // Or check login status here to go directly to admin panel if already logged in
-                },
-              ),
-            ),
 
+            // Social Icons
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: socials
-                    .map((icon) => _CircleIcon(icon: icon))
-                    .toList(),
+                children: socials.map((data) {
+                  return _CircleIcon(
+                    icon: data['icon'] as IconData,
+                    onTap: () => _launchUrl(data['url'] as String),
+                  );
+                }).toList(),
+              ),
+            ),
+
+            // Small Edit Icon Button
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Center(
+                child: InkWell(
+                  onTap: () {
+                    Get.toNamed(Routes.ADMIN_AUTH);
+                  },
+                  borderRadius: BorderRadius.circular(30),
+                  child: Container(
+                    padding: EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: Colors.orangeAccent,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.settings,
+                      color: Colors.black87,
+                      size: 16,
+                    ),
+                  ),
+                ),
               ),
             ),
           ],
         ),
       ),
     );
+  }
+
+  // Utility to launch URLs
+  static Future<void> _launchUrl(String url) async {
+    final uri = Uri.parse(url);
+    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+      Get.snackbar(
+        'Error',
+        'Could not launch $url',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    }
   }
 }
 
@@ -163,20 +190,25 @@ class _SidebarMenuItem extends StatelessWidget {
 
 class _CircleIcon extends StatelessWidget {
   final IconData icon;
+  final VoidCallback onTap;
 
-  const _CircleIcon({required this.icon});
+  const _CircleIcon({required this.icon, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 44,
-      height: 44,
-      margin: const EdgeInsets.symmetric(horizontal: 4),
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: const Color(0xFF232323),
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(22),
+      child: Container(
+        width: 44,
+        height: 44,
+        margin: const EdgeInsets.symmetric(horizontal: 4),
+        decoration: const BoxDecoration(
+          shape: BoxShape.circle,
+          color: Color(0xFF232323),
+        ),
+        child: Center(child: FaIcon(icon, color: Colors.white, size: 20)),
       ),
-      child: Center(child: FaIcon(icon, color: Colors.white, size: 20)),
     );
   }
 }

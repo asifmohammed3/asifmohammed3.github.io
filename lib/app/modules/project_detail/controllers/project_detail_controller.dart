@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -6,7 +7,6 @@ import '../../../data/api_models/portfolio_models.dart';
 import '../../home/controllers/home_controller.dart';
 
 class ProjectDetailController extends GetxController {
-  // Observables for project detail
   final projectDetail = Rxn<ProjectDetail>();
   final isLoading = false.obs;
   final error = RxnString();
@@ -22,21 +22,19 @@ class ProjectDetailController extends GetxController {
   Future<void> fetchProjectDetail() async {
     final Project? project = Get.arguments as Project?;
 
-    // If not project is passed, exit with error.
     if (project == null) {
       error.value = "No project data was provided.";
       return;
     }
 
-    // If you only need what's in the Project, assign a minimal detail:
+    // Start with minimal from arguments
     projectDetail.value = ProjectDetail(
-      id: project.id,
+      id: project.id.toString(),
       title: project.title,
       description: project.description,
       imgUrl: project.imgUrl,
       type: project.type,
       client: '',
-      // if not in Project, load below from Supabase
       date: '',
       projectUrl: '',
       keyFeatures: [],
@@ -45,7 +43,6 @@ class ProjectDetailController extends GetxController {
     isLoading.value = true;
 
     try {
-      // Example: fetch more details from 'project_details' table by project id
       final res = await supabase
           .from('project_details')
           .select()
@@ -53,20 +50,32 @@ class ProjectDetailController extends GetxController {
           .maybeSingle();
 
       if (res != null) {
-        // Map fields as per your DB columns
+        print("Supabase raw response: $res");
+        print("features type: ${res['features']?.runtimeType}");
+
         List<Feature> features = [];
-        if (res['features'] != null && res['features'] is List<dynamic>) {
-          features = (res['features'] as List<dynamic>).map((f) {
-            return Feature(
-              icon: _stringToIcon(f['icon']),
-              title: f['title'] ?? '',
-              description: f['description'] ?? '',
-            );
-          }).toList();
+        final featuresData = res['features'];
+
+        // Most likely Supabase returns as List (jsonb)
+        if (featuresData is List) {
+          features = featuresData
+              .map<Feature>((f) => Feature.fromJson(f as Map<String, dynamic>))
+              .toList();
+        }
+        // Fallback: if stored as string (rare)
+        else if (featuresData is String) {
+          final decoded = jsonDecode(featuresData);
+          if (decoded is List) {
+            features = decoded
+                .map<Feature>(
+                  (f) => Feature.fromJson(f as Map<String, dynamic>),
+                )
+                .toList();
+          }
         }
 
         projectDetail.value = ProjectDetail(
-          id: project.id,
+          id: (res['id'] ?? project.id).toString(),
           title: res['title'] ?? project.title,
           description: res['description'] ?? project.description,
           imgUrl: res['img_url'] ?? project.imgUrl,
@@ -81,25 +90,9 @@ class ProjectDetailController extends GetxController {
       error.value = null;
     } catch (e) {
       error.value = "Failed to load project details: $e";
+      print("Error fetching project detail: $e");
     } finally {
       isLoading.value = false;
-    }
-  }
-
-  // Example: Map a string from DB to an IconData
-  IconData _stringToIcon(String? iconName) {
-    switch (iconName) {
-      case 'design_services_outlined':
-        return Icons.design_services_outlined;
-      case 'security_outlined':
-        return Icons.security_outlined;
-      case 'cloud':
-        return Icons.cloud;
-      case 'analytics_outlined':
-        return Icons.analytics_outlined;
-      // add more mappings as needed
-      default:
-        return Icons.star_outline;
     }
   }
 }

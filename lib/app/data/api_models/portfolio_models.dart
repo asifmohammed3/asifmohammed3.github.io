@@ -74,4 +74,95 @@ class Feature {
   final String description;
 
   Feature({required this.icon, required this.title, required this.description});
+
+  factory Feature.fromJson(Map<String, dynamic> json) {
+    return Feature(
+      icon: stringToIcon(json['icon']),
+      title: json['title'] ?? '',
+      description: json['description'] ?? '',
+    );
+  }
+
+  static IconData stringToIcon(String? iconName) {
+    switch (iconName) {
+      // Portfolio app icons
+      case 'devices':
+        return Icons.devices;
+      case 'auto_awesome':
+        return Icons.auto_awesome;
+      case 'dns':
+        return Icons.dns;
+      case 'sync':
+        return Icons.sync;
+      case 'admin_panel_settings':
+        return Icons.admin_panel_settings_outlined;
+      case 'bolt':
+        return Icons.bolt;
+      case 'security':
+        return Icons.security; // General
+      case 'architecture':
+        return Icons.architecture;
+
+      // COVIPLUS (health project) icons
+      case 'cloud_upload':
+        return Icons.cloud_upload;
+      case 'insights':
+        return Icons.insights;
+      case 'dashboard':
+        return Icons.dashboard;
+      case 'notifications_active':
+        return Icons.notifications_active;
+      case 'chat_bubble_outline':
+        return Icons.chat_bubble_outline;
+      case 'privacy_tip':
+        return Icons.privacy_tip;
+      case 'devices_other':
+        return Icons.devices_other;
+      case 'autorenew':
+        return Icons.autorenew;
+
+      // Gesture Flow icons
+      case 'pan_tool':
+        return Icons.pan_tool;
+      case 'volume_up':
+        return Icons.volume_up;
+      case 'volume_down':
+        return Icons.volume_down;
+      case 'brightness_6':
+        return Icons.brightness_6;
+      case 'volume_off':
+        return Icons.volume_off;
+      case 'fast_forward':
+        return Icons.fast_forward;
+      case 'fast_rewind':
+        return Icons.fast_rewind;
+      case 'play_arrow':
+        return Icons.play_arrow;
+      case 'arrow_downward':
+        return Icons.arrow_downward;
+      case 'arrow_upward':
+        return Icons.arrow_upward;
+      case 'keyboard_arrow_down':
+        return Icons.keyboard_arrow_down;
+      case 'keyboard_arrow_up':
+        return Icons.keyboard_arrow_up;
+      case 'science':
+        return Icons.science;
+      case 'visibility':
+        return Icons.visibility;
+
+      // Demo & legacy icons
+      case 'design_services_outlined':
+        return Icons.design_services_outlined;
+      case 'security_outlined':
+        return Icons.security_outlined;
+      case 'analytics_outlined':
+        return Icons.analytics_outlined;
+      case 'cloud':
+        return Icons.cloud;
+
+      default:
+        return Icons.star_outline;
+    }
+  }
 }
