@@ -1,5 +1,4 @@
 import 'dart:developer';
-
 import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/material.dart';
@@ -14,9 +13,6 @@ class AdminAuthController extends GetxController {
   final emailCtrl = TextEditingController();
   final passwordCtrl = TextEditingController();
 
-  // For state: signUp or signIn mode
-  final isSignUpMode = false.obs;
-
   @override
   void onClose() {
     emailCtrl.dispose();
@@ -24,6 +20,7 @@ class AdminAuthController extends GetxController {
     super.onClose();
   }
 
+  /// Admin sign-in only (sign-up removed)
   Future<void> signIn() async {
     error.value = null;
     isLoading.value = true;
@@ -33,39 +30,26 @@ class AdminAuthController extends GetxController {
         password: passwordCtrl.text.trim(),
       );
       if (response.session != null) {
-        log("Signed in Succesfully");
-        Get.offAllNamed(Routes.ADMIN_MAIN); // Navigate to protected area
+        log("Signed in Successfully");
+        Get.offAllNamed(Routes.ADMIN_MAIN); // Navigate to protected admin area
       } else {
         error.value = "Sign-In failed. Please check credentials.";
       }
     } catch (e) {
-      error.value = e.toString();
-    }
-    isLoading.value = false;
-  }
-
-  Future<void> signUp() async {
-    error.value = null;
-    isLoading.value = true;
-    try {
-      final response = await supabaseClient.auth.signUp(
-        email: emailCtrl.text.trim(),
-        password: passwordCtrl.text.trim(),
-      );
-      if (response.user != null) {
-        error.value =
-            "Sign-Up successful. Please verify your email and sign in.";
-        isSignUpMode.value = false;
+      if (e is AuthApiException) {
+        error.value = e.message; // Just the message from Supabase Auth
+      } else if (e is PostgrestException) {
+        error.value = e.message; // For DB-related errors
       } else {
-        error.value = "Sign-Up failed.";
+        error.value = 'An unexpected error occurred.'; // Fallback
       }
-    } catch (e) {
-      error.value = e.toString();
     }
+
     isLoading.value = false;
   }
 
-  void logout() async {
+  /// Admin logout
+  Future<void> logout() async {
     await supabaseClient.auth.signOut();
     Get.offAllNamed(Routes.HOME);
   }

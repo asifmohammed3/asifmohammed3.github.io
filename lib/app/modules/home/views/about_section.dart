@@ -77,11 +77,11 @@ class ProfileCard extends GetView<HomeController> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(height: 12),
-          _TagLine(tagLine: controller.profileData.value?.tagLine ?? ""),
+          _TagLine(),
           SizedBox(height: 18),
-          _Heading(heading: controller.profileData.value?.heading ?? ""),
+          _Heading(heading: controller.profileData.value?.tagLine ?? ""),
           SizedBox(height: 18),
-          _Description(desc: controller.profileData.value?.description ?? ""),
+          _Description(desc: controller.profileData.value?.heading ?? ""),
           SizedBox(height: 24),
           _StatsRow(statList: controller.profileData.value?.stats ?? []),
           SizedBox(height: 24),
@@ -103,9 +103,7 @@ class ProfileCard extends GetView<HomeController> {
 }
 
 class _TagLine extends StatelessWidget {
-  final String tagLine;
-
-  const _TagLine({required this.tagLine});
+  const _TagLine();
 
   @override
   Widget build(BuildContext context) {
@@ -116,7 +114,7 @@ class _TagLine extends StatelessWidget {
         borderRadius: BorderRadius.circular(19),
       ),
       child: Text(
-        tagLine,
+        "Get to Know Me",
         style: const TextStyle(
           color: Color(0xFF211F20),
           fontWeight: FontWeight.bold,
@@ -154,8 +152,8 @@ class _Description extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Text(
-      'Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantiumSed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantiumSed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantiumSed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantiumSed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantiumSed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantiumSed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantiumtium, totam rem aperiam...',
+    return Text(
+      desc,
       style: TextStyle(color: Colors.white70, fontSize: 15, height: 1.7),
     );
   }
@@ -297,7 +295,7 @@ class _InfoField extends StatelessWidget {
   }
 }
 
-class ResumeInfoCard extends StatelessWidget {
+class ResumeInfoCard extends GetView<HomeController> {
   final ResumeInfo info;
 
   const ResumeInfoCard({super.key, required this.info});
@@ -415,7 +413,7 @@ class ResumeInfoCard extends StatelessWidget {
   Widget _buildTalkButton() {
     return OutlinedButton.icon(
       onPressed: () {
-        // TODO: Add "Let's Talk" action
+        controller.scrollToSection('contact');
       },
       icon: const Icon(Icons.chat_bubble_outline, color: Colors.white),
       label: const Padding(

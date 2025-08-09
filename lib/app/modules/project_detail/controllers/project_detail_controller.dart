@@ -4,7 +4,8 @@ import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../data/api_models/portfolio_models.dart';
-import '../../home/controllers/home_controller.dart';
+import '../../../routes/app_pages.dart';
+import '../../../widgets/loader.dart';
 
 class ProjectDetailController extends GetxController {
   final projectDetail = Rxn<ProjectDetail>();
@@ -16,18 +17,21 @@ class ProjectDetailController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (Get.arguments == null) {
+        Get.offAllNamed(Routes.HOME);
+      }
+    });
     fetchProjectDetail();
   }
 
   Future<void> fetchProjectDetail() async {
     final Project? project = Get.arguments as Project?;
-
     if (project == null) {
       error.value = "No project data was provided.";
       return;
     }
 
-    // Start with minimal from arguments
     projectDetail.value = ProjectDetail(
       id: project.id.toString(),
       title: project.title,
@@ -42,6 +46,11 @@ class ProjectDetailController extends GetxController {
 
     isLoading.value = true;
 
+    // ✅ Defer loader start
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Loader.instance.show();
+    });
+
     try {
       final res = await supabase
           .from('project_details')
@@ -50,20 +59,14 @@ class ProjectDetailController extends GetxController {
           .maybeSingle();
 
       if (res != null) {
-        print("Supabase raw response: $res");
-        print("features type: ${res['features']?.runtimeType}");
-
         List<Feature> features = [];
         final featuresData = res['features'];
 
-        // Most likely Supabase returns as List (jsonb)
         if (featuresData is List) {
           features = featuresData
               .map<Feature>((f) => Feature.fromJson(f as Map<String, dynamic>))
               .toList();
-        }
-        // Fallback: if stored as string (rare)
-        else if (featuresData is String) {
+        } else if (featuresData is String) {
           final decoded = jsonDecode(featuresData);
           if (decoded is List) {
             features = decoded
@@ -90,8 +93,11 @@ class ProjectDetailController extends GetxController {
       error.value = null;
     } catch (e) {
       error.value = "Failed to load project details: $e";
-      print("Error fetching project detail: $e");
     } finally {
+      // ✅ Defer loader hide
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Loader.instance.hide();
+      });
       isLoading.value = false;
     }
   }

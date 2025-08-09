@@ -8,7 +8,7 @@ import '../../../widgets/LinedTitle.dart';
 import '../controllers/home_controller.dart';
 
 class PortfolioSection extends GetView<HomeController> {
-  const PortfolioSection({Key? key}) : super(key: key);
+  const PortfolioSection({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +18,7 @@ class PortfolioSection extends GetView<HomeController> {
         LinedTitle(text: "Portfolio"),
         const SizedBox(height: 8),
         Text(
-          "jadhfhsdfghsdvgf safhbsdhjf sdifhgbdshfg difhsdbf",
+          "Welcome to my portfolio, where I proudly present a curated collection of projects spanning my professional career, academic achievements, and personal passion projects. Each project demonstrates my diverse skills in Flutter development and GetX state management, reflecting a commitment to quality, innovation, and practical solutions.",
           // Replace with your description
           textAlign: TextAlign.center,
           style: const TextStyle(color: Colors.white70, fontSize: 14),

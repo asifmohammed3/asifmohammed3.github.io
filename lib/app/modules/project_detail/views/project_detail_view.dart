@@ -8,7 +8,7 @@ import '../../../widgets/custom_hamburger.dart';
 import '../../../widgets/sidebar_menu.dart';
 
 class ProjectDetailView extends GetView<ProjectDetailController> {
-  const ProjectDetailView({Key? key}) : super(key: key);
+  const ProjectDetailView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -21,10 +21,7 @@ class ProjectDetailView extends GetView<ProjectDetailController> {
       final detail = controller.projectDetail.value;
 
       if (isLoading) {
-        return Scaffold(
-          backgroundColor: const Color(0xFF1A1A1A),
-          body: const Center(child: CircularProgressIndicator()),
-        );
+        return SizedBox();
       }
 
       if (errorMsg != null) {
@@ -312,7 +309,7 @@ class ProjectDetailView extends GetView<ProjectDetailController> {
           SizedBox(
             width: 110,
             child: Text(
-              '$label',
+              label,
               style: const TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.w600,
@@ -370,8 +367,9 @@ class ProjectDetailView extends GetView<ProjectDetailController> {
   }
 
   Widget _buildKeyFeatures(ProjectDetail project, {bool isMobile = false}) {
-    if (project.keyFeatures == null || project.keyFeatures!.isEmpty)
+    if (project.keyFeatures.isEmpty) {
       return const SizedBox.shrink();
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -388,7 +386,7 @@ class ProjectDetailView extends GetView<ProjectDetailController> {
         GridView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          itemCount: project.keyFeatures!.length,
+          itemCount: project.keyFeatures.length,
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: isMobile ? 1 : 2,
             crossAxisSpacing: 24,
@@ -396,7 +394,7 @@ class ProjectDetailView extends GetView<ProjectDetailController> {
             childAspectRatio: 2.5,
           ),
           itemBuilder: (context, index) {
-            final feature = project.keyFeatures![index];
+            final feature = project.keyFeatures[index];
             return _buildFeatureCard(
               feature.icon,
               feature.title,

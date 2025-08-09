@@ -138,7 +138,9 @@ class HeroSection extends GetView<HomeController> {
       children: [
         Flexible(
           child: ElevatedButton(
-            onPressed: () {},
+            onPressed: () {
+              controller.scrollToSection('portfolio');
+            },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.white,
               foregroundColor: const Color(0xFF2C0000),
@@ -161,7 +163,9 @@ class HeroSection extends GetView<HomeController> {
         const SizedBox(width: 12),
         Flexible(
           child: OutlinedButton(
-            onPressed: () {},
+            onPressed: () {
+              controller.scrollToSection('contact');
+            },
             style:
                 OutlinedButton.styleFrom(
                   side: const BorderSide(color: Colors.white, width: 2),

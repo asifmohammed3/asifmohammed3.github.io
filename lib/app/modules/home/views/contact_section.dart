@@ -5,7 +5,7 @@ import '../../../utils/responsive.dart';
 import '../../../widgets/LinedTitle.dart';
 
 class ContactSection extends GetView<HomeController> {
-  ContactSection({super.key});
+  const ContactSection({super.key});
 
   @override
   Widget build(BuildContext context) {

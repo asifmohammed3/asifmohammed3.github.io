@@ -23,9 +23,9 @@ class AdminAuthView extends GetView<AdminAuthController> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
-                      controller.isSignUpMode.value ? 'Sign Up' : 'Sign In',
-                      style: const TextStyle(
+                    const Text(
+                      'Admin Sign In',
+                      style: TextStyle(
                         color: Colors.white,
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
@@ -37,7 +37,7 @@ class AdminAuthView extends GetView<AdminAuthController> {
                       decoration: const InputDecoration(
                         labelText: "Email",
                         labelStyle: TextStyle(color: Colors.white),
-                        hintText: "your@email.com",
+                        hintText: "admin@email.com",
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -62,31 +62,12 @@ class AdminAuthView extends GetView<AdminAuthController> {
                         padding: EdgeInsets.symmetric(vertical: 16),
                         child: CircularProgressIndicator(),
                       ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        ElevatedButton(
-                          onPressed: controller.isLoading.value
-                              ? null
-                              : () => controller.isSignUpMode.value
-                                    ? controller.signUp()
-                                    : controller.signIn(),
-                          child: Text(
-                            controller.isSignUpMode.value
-                                ? 'Sign Up'
-                                : 'Sign In',
-                          ),
-                        ),
-                        TextButton(
-                          onPressed: () => controller.isSignUpMode.value =
-                              !controller.isSignUpMode.value,
-                          child: Text(
-                            controller.isSignUpMode.value
-                                ? "Already have account? Sign In"
-                                : "Don't have account? Sign Up",
-                          ),
-                        ),
-                      ],
+                    const SizedBox(height: 12),
+                    ElevatedButton(
+                      onPressed: controller.isLoading.value
+                          ? null
+                          : controller.signIn,
+                      child: const Text('Sign In'),
                     ),
                   ],
                 ),

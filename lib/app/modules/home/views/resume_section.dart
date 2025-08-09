@@ -15,6 +15,7 @@ class ResumeSection extends GetView<HomeController> {
   Widget build(BuildContext context) {
     return Obx(() {
       final data = controller.resumeSectionData.value;
+      final skills = controller.skills;
 
       if (data == null) {
         return const Center(child: CircularProgressIndicator());
@@ -33,16 +34,16 @@ class ResumeSection extends GetView<HomeController> {
           ),
           const SizedBox(height: 8),
           Text(
-            "gfghfhgfjhgfjhgfjhgjhjh",
+            data.subtitle,
             textAlign: TextAlign.center,
             style: const TextStyle(color: Colors.white70, fontSize: 14),
           ),
           const SizedBox(height: 8),
 
           Responsive(
-            mobile: _buildMobileLayout(data),
-            tablet: _buildTabletLayout(data),
-            desktop: _buildDesktopLayout(data),
+            mobile: _buildMobileLayout(data, skills),
+            tablet: _buildTabletLayout(data, skills),
+            desktop: _buildDesktopLayout(data, skills),
           ),
         ],
       );
@@ -51,10 +52,10 @@ class ResumeSection extends GetView<HomeController> {
 }
 
 // Mobile layout: typically stacked vertically with smaller widths
-Widget _buildMobileLayout(dynamic data) {
+Widget _buildMobileLayout(dynamic data, List<Skill> skills) {
   return Column(
     children: [
-      ResumeProfileCard(profile: data.profile),
+      ResumeProfileCard(profile: data.profile, skills: skills),
 
       const SizedBox(height: 16),
 
@@ -68,11 +69,14 @@ Widget _buildMobileLayout(dynamic data) {
 }
 
 // Tablet layout: can be two columns but adjusted widths and spacing
-Widget _buildTabletLayout(dynamic data) {
+Widget _buildTabletLayout(dynamic data, List<Skill> skills) {
   return Row(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      Expanded(flex: 4, child: ResumeProfileCard(profile: data.profile)),
+      Expanded(
+        flex: 4,
+        child: ResumeProfileCard(profile: data.profile, skills: skills),
+      ),
       const SizedBox(width: 16),
       Expanded(
         flex: 7,
@@ -87,12 +91,15 @@ Widget _buildTabletLayout(dynamic data) {
 }
 
 // Desktop layout: wide with generous spacing
-Widget _buildDesktopLayout(dynamic data) {
+Widget _buildDesktopLayout(dynamic data, List<Skill> skills) {
   return Row(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
       const SizedBox(width: 12),
-      SizedBox(width: 360, child: ResumeProfileCard(profile: data.profile)),
+      SizedBox(
+        width: 360,
+        child: ResumeProfileCard(profile: data.profile, skills: skills),
+      ),
       const SizedBox(width: 12),
       Expanded(
         child: ResumeRightPanel(
@@ -127,7 +134,7 @@ class ResumeRightPanel extends StatelessWidget {
         children: [
           const SizedBox(height: 12),
           const SizedBox(height: 40),
-          _sectionTitle("🧠 Professional Experience"),
+          _sectionTitle("💼 Professional Experience"),
           const SizedBox(height: 20),
 
           ...experiences.map(
@@ -321,8 +328,13 @@ class ResumeRightPanel extends StatelessWidget {
 
 class ResumeProfileCard extends StatelessWidget {
   final ProfileModel profile;
+  final List<Skill> skills;
 
-  const ResumeProfileCard({super.key, required this.profile});
+  const ResumeProfileCard({
+    super.key,
+    required this.profile,
+    required this.skills,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -347,7 +359,6 @@ class ResumeProfileCard extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
-
             const Text(
               "Professional Summary",
               style: TextStyle(
@@ -375,7 +386,10 @@ class ResumeProfileCard extends StatelessWidget {
             contactRow(Icons.location_on, profile.location),
             contactRow(Icons.email, profile.email),
             contactRow(Icons.phone, profile.phone),
-            contactRow(FontAwesomeIcons.linkedin, "linkedin.com/in/example"),
+            contactRow(
+              FontAwesomeIcons.linkedin,
+              "linkedin.com/in/mohammedasifp/",
+            ),
             const SizedBox(height: 24),
 
             const Text(
@@ -388,10 +402,9 @@ class ResumeProfileCard extends StatelessWidget {
             ),
             const SizedBox(height: 12),
 
-            skillProgress("Web Development", 0.95),
-            skillProgress("UI/UX Design", 0.85),
-            skillProgress("Cloud Architecture", 0.90),
-            skillProgress("Project Management", 0.80),
+            ...skills
+                .take(4) // get only the first 4 skills
+                .map((s) => skillProgress(s.label, s.level / 100.0)),
           ],
         ),
       ),

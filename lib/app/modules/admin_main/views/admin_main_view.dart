@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../admin_auth/controllers/admin_auth_controller.dart';
 import '../controllers/admin_main_controller.dart';
 
 class AdminMainView extends GetView<AdminMainController> {
@@ -9,7 +10,18 @@ class AdminMainView extends GetView<AdminMainController> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      appBar: AppBar(title: const Text("Admin Panel")),
+      appBar: AppBar(
+        title: const Text("Admin Panel"),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout, color: Colors.white),
+            tooltip: 'Logout',
+            onPressed: () {
+              Get.find<AdminAuthController>().logout();
+            },
+          ),
+        ],
+      ),
       body: Row(
         children: [
           _leftSidebar(),

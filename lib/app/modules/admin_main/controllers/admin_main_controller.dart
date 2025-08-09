@@ -7,10 +7,11 @@ import '../../../widgets/loader.dart';
 class AdminMainController extends GetxController {
   final supabase = Supabase.instance.client;
 
+  // Observable list of all resumes (for a single admin)
   final resumes = <Map<String, dynamic>>[].obs;
   final activeResumeId = RxnString();
 
-  // Project-related
+  // Projects state
   final projects = <Map<String, dynamic>>[].obs;
   final selectedProjectId = RxnString();
 
@@ -30,7 +31,7 @@ class AdminMainController extends GetxController {
   final experienceLevelCtrl = TextEditingController();
   final languagesCtrl = TextEditingController();
 
-  // Lists
+  // Lists of section controllers
   final skillsCtrls = <Map<String, TextEditingController>>[].obs;
   final expCtrls = <Map<String, TextEditingController>>[].obs;
   final eduCtrls = <Map<String, TextEditingController>>[].obs;
@@ -45,7 +46,7 @@ class AdminMainController extends GetxController {
     fetchResumes();
   }
 
-  // ===================== Helper: Snackbar =====================
+  // Snackbar helper for green/red feedback
   void _showSnack(String message, {bool success = true}) {
     Get.snackbar(
       success ? 'Success' : 'Error',
@@ -61,10 +62,17 @@ class AdminMainController extends GetxController {
   Future<void> fetchResumes() async {
     try {
       Loader.instance.show();
+
+      // Fetch all resumes for our single admin site
       final res = await supabase.from('resumes').select().order('created_at');
+
       resumes.assignAll(List<Map<String, dynamic>>.from(res));
-      if (activeResumeId.value == null && resumes.isNotEmpty) {
-        setActiveResume(resumes.first['id']);
+
+      // Set active resume from DB (the one with is_active == true)
+      final active = resumes.firstWhereOrNull((r) => r['is_active'] == true);
+      if (active != null) {
+        activeResumeId.value = active['id'];
+        await fetchAllSections(active['id']);
       }
     } catch (e) {
       _showSnack('Failed to load resumes: $e', success: false);
@@ -76,13 +84,27 @@ class AdminMainController extends GetxController {
   Future<void> addResume(String title, String subtitle) async {
     try {
       Loader.instance.show();
-      await supabase.from('resumes').insert({
-        'title': title,
-        'subtitle': subtitle,
-        'user_id': supabase.auth.currentUser?.id,
-      });
-      await fetchResumes();
-      _showSnack('Resume added successfully');
+
+      // Insert a new resume, mark as active
+      final inserted = await supabase
+          .from('resumes')
+          .insert({'title': title, 'subtitle': subtitle, 'is_active': true})
+          .select()
+          .maybeSingle();
+
+      if (inserted != null) {
+        // Set all OTHER resumes inactive (only one active at a time)
+        await supabase
+            .from('resumes')
+            .update({'is_active': false})
+            .neq('id', inserted['id']);
+
+        activeResumeId.value = inserted['id'];
+        await fetchAllSections(inserted['id']);
+        await fetchResumes();
+
+        _showSnack('Resume added & activated');
+      }
     } catch (e) {
       _showSnack('Failed to add resume: $e', success: false);
     } finally {
@@ -90,16 +112,38 @@ class AdminMainController extends GetxController {
     }
   }
 
+  /// When admin selects a resume, set it active in DB, others inactive, and reload
   Future<void> setActiveResume(String resumeId) async {
-    selectedProjectId.value = null;
-    activeResumeId.value = resumeId;
-    await fetchAllSections(resumeId);
+    try {
+      Loader.instance.show();
+
+      await supabase
+          .from('resumes')
+          .update({'is_active': true})
+          .eq('id', resumeId);
+
+      await supabase
+          .from('resumes')
+          .update({'is_active': false})
+          .neq('id', resumeId);
+
+      activeResumeId.value = resumeId;
+      await fetchAllSections(resumeId);
+      await fetchResumes(); // Refresh list with updated active marker
+
+      _showSnack('Active resume changed');
+    } catch (e) {
+      _showSnack('Failed to set active resume: $e', success: false);
+    } finally {
+      Loader.instance.hide();
+    }
   }
 
-  // ===================== Fetch Data =====================
+  // ===================== Fetch All Related Sections =====================
   Future<void> fetchAllSections(String resumeId) async {
     try {
       Loader.instance.show();
+
       await fetchProfile(resumeId);
 
       await _fetchSection(resumeId, 'skills', ['label', 'level'], skillsCtrls);
@@ -119,7 +163,6 @@ class AdminMainController extends GetxController {
         'title',
         'year',
       ], certCtrls);
-
       await _fetchSection(resumeId, 'projects', [
         'title',
         'description',
@@ -127,7 +170,7 @@ class AdminMainController extends GetxController {
         'img_url',
         'project_url',
       ], projectCtrls);
-
+      // Contact info is global (not resume specific)
       await _fetchSection(null, 'contact_infos', [
         'icon',
         'title',
@@ -148,22 +191,34 @@ class AdminMainController extends GetxController {
           .eq('resume_id', resumeId)
           .maybeSingle();
 
-      if (res != null) {
-        profile.value = res;
-        nameCtrl.text = res['name'] ?? '';
-        titleCtrl.text = res['title'] ?? '';
-        imageUrlCtrl.text = res['image_url'] ?? '';
-        emailCtrl.text = res['email'] ?? '';
-        phoneCtrl.text = res['phone'] ?? '';
-        locationCtrl.text = res['location'] ?? '';
-        tagLineCtrl.text = res['tag_line'] ?? '';
-        headingCtrl.text = res['heading'] ?? '';
-        descriptionCtrl.text = res['description'] ?? '';
-        specializationCtrl.text = res['specialization'] ?? '';
-        educationCtrl.text = res['education'] ?? '';
-        experienceLevelCtrl.text = res['experience_level'] ?? '';
-        languagesCtrl.text = res['languages'] ?? '';
+      if (res == null) {
+        // Auto-create empty profile for new resume
+        final inserted = await supabase
+            .from('profiles')
+            .insert({'resume_id': resumeId})
+            .select()
+            .maybeSingle();
+
+        if (inserted != null) {
+          profile.value = inserted;
+        }
+        return;
       }
+
+      profile.value = res;
+      nameCtrl.text = res['name'] ?? '';
+      titleCtrl.text = res['title'] ?? '';
+      imageUrlCtrl.text = res['image_url'] ?? '';
+      emailCtrl.text = res['email'] ?? '';
+      phoneCtrl.text = res['phone'] ?? '';
+      locationCtrl.text = res['location'] ?? '';
+      tagLineCtrl.text = res['tag_line'] ?? '';
+      headingCtrl.text = res['heading'] ?? '';
+      descriptionCtrl.text = res['description'] ?? '';
+      specializationCtrl.text = res['specialization'] ?? '';
+      educationCtrl.text = res['education'] ?? '';
+      experienceLevelCtrl.text = res['experience_level'] ?? '';
+      languagesCtrl.text = res['languages'] ?? '';
     } catch (e) {
       _showSnack('Failed to fetch profile: $e', success: false);
     }
@@ -194,26 +249,65 @@ class AdminMainController extends GetxController {
   Future<void> saveProfile() async {
     try {
       Loader.instance.show();
-      if (profile.value == null) return;
-      await supabase
-          .from('profiles')
-          .update({
-            'name': nameCtrl.text,
-            'title': titleCtrl.text,
-            'image_url': imageUrlCtrl.text,
-            'email': emailCtrl.text,
-            'phone': phoneCtrl.text,
-            'location': locationCtrl.text,
-            'tag_line': tagLineCtrl.text,
-            'heading': headingCtrl.text,
-            'description': descriptionCtrl.text,
-            'specialization': specializationCtrl.text,
-            'education': educationCtrl.text,
-            'experience_level': experienceLevelCtrl.text,
-            'languages': languagesCtrl.text,
-          })
-          .eq('id', profile.value!['id']);
-      _showSnack('Profile updated successfully');
+
+      // If no active resume, nothing to save
+      if (activeResumeId.value == null) {
+        _showSnack('No active resume to link profile', success: false);
+        return;
+      }
+
+      if (profile.value == null) {
+        // INSERT new profile for the active resume
+        final inserted = await supabase
+            .from('profiles')
+            .insert({
+              'resume_id': activeResumeId.value,
+              'name': nameCtrl.text,
+              'title': titleCtrl.text,
+              'image_url': imageUrlCtrl.text,
+              'email': emailCtrl.text,
+              'phone': phoneCtrl.text,
+              'location': locationCtrl.text,
+              'tag_line': tagLineCtrl.text,
+              'heading': headingCtrl.text,
+              'description': descriptionCtrl.text,
+              'specialization': specializationCtrl.text,
+              'education': educationCtrl.text,
+              'experience_level': experienceLevelCtrl.text,
+              'languages': languagesCtrl.text,
+            })
+            .select()
+            .maybeSingle();
+
+        if (inserted != null) {
+          profile.value = inserted;
+          _showSnack('Profile created successfully');
+        } else {
+          _showSnack('Failed to create profile', success: false);
+        }
+      } else {
+        // UPDATE existing profile
+        await supabase
+            .from('profiles')
+            .update({
+              'name': nameCtrl.text,
+              'title': titleCtrl.text,
+              'image_url': imageUrlCtrl.text,
+              'email': emailCtrl.text,
+              'phone': phoneCtrl.text,
+              'location': locationCtrl.text,
+              'tag_line': tagLineCtrl.text,
+              'heading': headingCtrl.text,
+              'description': descriptionCtrl.text,
+              'specialization': specializationCtrl.text,
+              'education': educationCtrl.text,
+              'experience_level': experienceLevelCtrl.text,
+              'languages': languagesCtrl.text,
+            })
+            .eq('id', profile.value!['id']);
+
+        _showSnack('Profile updated successfully');
+      }
     } catch (e) {
       _showSnack('Failed to save profile: $e', success: false);
     } finally {

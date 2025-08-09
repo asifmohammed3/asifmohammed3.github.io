@@ -3,7 +3,6 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:portfolio_website/app/modules/home/controllers/home_controller.dart';
-import '../routes/app_pages.dart';
 
 class SidebarMenu extends GetView<HomeController> {
   SidebarMenu({super.key});
@@ -81,31 +80,6 @@ class SidebarMenu extends GetView<HomeController> {
                     onTap: () => _launchUrl(data['url'] as String),
                   );
                 }).toList(),
-              ),
-            ),
-
-            // Small Edit Icon Button
-            Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: Center(
-                child: InkWell(
-                  onTap: () {
-                    Get.toNamed(Routes.ADMIN_AUTH);
-                  },
-                  borderRadius: BorderRadius.circular(30),
-                  child: Container(
-                    padding: EdgeInsets.all(4),
-                    decoration: BoxDecoration(
-                      color: Colors.orangeAccent,
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.settings,
-                      color: Colors.black87,
-                      size: 16,
-                    ),
-                  ),
-                ),
               ),
             ),
           ],

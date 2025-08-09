@@ -1,5 +1,4 @@
 import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -11,17 +10,22 @@ import '../../../widgets/loader.dart';
 class HomeController extends GetxController with GetTickerProviderStateMixin {
   final scrollController = ScrollController();
   final currentSection = 'home'.obs;
-  var selectedPortfolioTab = PortfolioTab.all.obs;
 
-  late AnimationController bubbleController;
-  late Animation<double> bubbleAnimation1;
-  late Animation<double> bubbleAnimation2;
+  // Portfolio tab selection for filtering
+  final selectedPortfolioTab = PortfolioTab.all.obs;
 
+  // Animation controllers for hero section bubble effect
+  late final AnimationController bubbleController;
+  late final Animation<double> bubbleAnimation1;
+  late final Animation<double> bubbleAnimation2;
+
+  // Contact form controllers
   final nameController = TextEditingController();
   final emailController = TextEditingController();
   final subjectController = TextEditingController();
   final messageController = TextEditingController();
 
+  // Section keys for scrolling
   final sectionKeys = <String, GlobalKey>{
     'home': GlobalKey(),
     'about': GlobalKey(),
@@ -41,7 +45,7 @@ class HomeController extends GetxController with GetTickerProviderStateMixin {
   final contactItems = <ContactItemModel>[].obs;
   final projects = <Project>[].obs;
 
-  // Loading and error handling
+  // Loading and error states
   final isLoading = false.obs;
   final errorMessage = RxnString();
 
@@ -50,6 +54,7 @@ class HomeController extends GetxController with GetTickerProviderStateMixin {
     super.onInit();
     scrollController.addListener(_handleScroll);
 
+    // Bubble animations for hero section
     bubbleController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 6),
@@ -77,6 +82,23 @@ class HomeController extends GetxController with GetTickerProviderStateMixin {
     super.onClose();
   }
 
+  /// Get resumeId of the currently active resume (single-admin, no user_id)
+  Future<String?> _getActiveResumeId() async {
+    final res = await supabase
+        .from('resumes')
+        .select('id')
+        .eq('is_active', true)
+        .maybeSingle();
+
+    if (res == null) {
+      log('⚠️ No active resume found');
+      return null;
+    }
+    log('✅ Active resume id: ${res['id']}');
+    return res['id'] as String;
+  }
+
+  /// Handle nav highlight based on scroll
   void _handleScroll() {
     double minOffset = double.infinity;
     String? closestSection;
@@ -99,6 +121,7 @@ class HomeController extends GetxController with GetTickerProviderStateMixin {
     }
   }
 
+  /// Scroll to given section
   void scrollToSection(String section) {
     final key = sectionKeys[section];
     if (key?.currentContext != null) {
@@ -110,6 +133,7 @@ class HomeController extends GetxController with GetTickerProviderStateMixin {
     }
   }
 
+  /// Returns projects filtered by the selected tab
   List<Project> get filteredProjects {
     final tab = selectedPortfolioTab.value;
     return tab == PortfolioTab.all
@@ -117,13 +141,13 @@ class HomeController extends GetxController with GetTickerProviderStateMixin {
         : projects.where((p) => p.type == tab).toList();
   }
 
-  /// Load all data concurrently and handle errors/loading UI
+  /// Loads all sections
   Future<void> loadAllData() async {
     errorMessage.value = null;
     isLoading.value = true;
+    Loader.instance.show();
 
     try {
-      Loader.instance.show();
       await Future.wait([
         fetchHeroSection(),
         fetchProfile(),
@@ -133,18 +157,29 @@ class HomeController extends GetxController with GetTickerProviderStateMixin {
         fetchProjects(),
       ]);
     } catch (e, st) {
-      log("Error loading data", error: e, stackTrace: st);
+      log("❌ Error loading data", error: e, stackTrace: st);
       errorMessage.value = e.toString();
-      Loader.instance.hide();
     } finally {
       isLoading.value = false;
       Loader.instance.hide();
     }
   }
 
+  /// Hero section comes from active resume's profile
   Future<void> fetchHeroSection() async {
-    final res = await supabase.from('profiles').select().maybeSingle();
-    if (res == null) return;
+    final resumeId = await _getActiveResumeId();
+    if (resumeId == null) return;
+
+    final res = await supabase
+        .from('profiles')
+        .select()
+        .eq('resume_id', resumeId)
+        .maybeSingle();
+
+    if (res == null) {
+      log('⚠️ No profile for hero section of resume $resumeId');
+      return;
+    }
 
     heroSection.value = HeroSectionModel(
       name: res['name'] ?? '',
@@ -154,11 +189,22 @@ class HomeController extends GetxController with GetTickerProviderStateMixin {
     );
   }
 
+  /// Profile data + stats
   Future<void> fetchProfile() async {
-    final res = await supabase.from('profiles').select().maybeSingle();
-    if (res == null) return;
+    final resumeId = await _getActiveResumeId();
+    if (resumeId == null) return;
 
-    // Fetch stats related to this profile (assume 'id' exists on profiles)
+    final res = await supabase
+        .from('profiles')
+        .select()
+        .eq('resume_id', resumeId)
+        .maybeSingle();
+
+    if (res == null) {
+      log('⚠️ No profile found for resume $resumeId');
+      return;
+    }
+
     final profileId = res['id'];
     List<StatItem> stats = [];
 
@@ -198,22 +244,39 @@ class HomeController extends GetxController with GetTickerProviderStateMixin {
     );
   }
 
+  /// Skills for active resume
   Future<void> fetchSkills() async {
-    final res = await supabase.from('skills').select();
+    final resumeId = await _getActiveResumeId();
+    if (resumeId == null) return;
+
+    final res = await supabase
+        .from('skills')
+        .select()
+        .eq('resume_id', resumeId);
+
     skills.value = (res as List<dynamic>)
         .map((e) => Skill(label: e['label'], level: e['level'] ?? 0))
         .toList();
   }
 
+  /// Resume section: experiences, educations, certifications
   Future<void> fetchResumeSection() async {
+    final resumeId = await _getActiveResumeId();
+    if (resumeId == null) return;
+
     if (profileData.value == null) {
       await fetchProfile();
     }
 
-    final res = await supabase.from('resumes').select().maybeSingle();
-    if (res == null) return;
-
-    final resumeId = res['id'];
+    final res = await supabase
+        .from('resumes')
+        .select()
+        .eq('id', resumeId)
+        .maybeSingle();
+    if (res == null) {
+      log('⚠️ No resume row found for id $resumeId');
+      return;
+    }
 
     final expsFuture = supabase
         .from('experiences')
@@ -279,6 +342,7 @@ class HomeController extends GetxController with GetTickerProviderStateMixin {
     );
   }
 
+  /// Contact info (global)
   Future<void> fetchContactItems() async {
     final res = await supabase.from('contact_infos').select();
     contactItems.value = (res as List<dynamic>)
@@ -292,6 +356,7 @@ class HomeController extends GetxController with GetTickerProviderStateMixin {
         .toList();
   }
 
+  /// Utility to map contact icons
   IconData _mapIconFromString(String? iconStr) {
     switch (iconStr?.toLowerCase()) {
       case 'email':
@@ -305,10 +370,15 @@ class HomeController extends GetxController with GetTickerProviderStateMixin {
     }
   }
 
+  /// Projects for active resume
   Future<void> fetchProjects() async {
+    final resumeId = await _getActiveResumeId();
+    if (resumeId == null) return;
+
     final res = await supabase
         .from('projects')
         .select()
+        .eq('resume_id', resumeId)
         .order('date', ascending: false);
 
     projects.value = (res as List<dynamic>).map((e) {
@@ -322,6 +392,7 @@ class HomeController extends GetxController with GetTickerProviderStateMixin {
     }).toList();
   }
 
+  /// Map project type to enum
   PortfolioTab _mapStringToPortfolioTab(String type) {
     switch (type.toLowerCase()) {
       case 'professional':
@@ -335,6 +406,7 @@ class HomeController extends GetxController with GetTickerProviderStateMixin {
     }
   }
 
+  /// Set filter tab for projects
   void setPortfolioTab(PortfolioTab tab) {
     selectedPortfolioTab.value = tab;
   }
