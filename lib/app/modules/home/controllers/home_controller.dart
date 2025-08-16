@@ -460,15 +460,19 @@ class HomeController extends GetxController with GetTickerProviderStateMixin {
       """
       };
 
-      print("Sending body: $body"); // Debugging
+
+      print("Request body: ${jsonEncode(body)}");
 
       final response = await supabase.functions.invoke(
         'resend-email',
-        body: jsonEncode(body), // Explicitly encode to JSON
+        body: body, // Let Supabase handle JSON encoding
         headers: {
-          'Content-Type': 'application/json', // Ensure proper content type
+          'Content-Type': 'application/json',
         },
       );
+
+      print("Response status: ${response.status}");
+      print("Response data: ${response.data}");
 
       Loader.instance.hide();
 
@@ -479,21 +483,39 @@ class HomeController extends GetxController with GetTickerProviderStateMixin {
         subjectController.clear();
         messageController.clear();
       } else {
-        String errorMsg = "Unknown error";
+        String errorMsg = "Failed to send message";
+
         if (response.data != null) {
-          if (response.data is Map<String, dynamic> && response.data['error'] != null) {
-            errorMsg = response.data['error'].toString();
+          if (response.data is Map<String, dynamic>) {
+            errorMsg = response.data['error']?.toString() ??
+                response.data['message']?.toString() ??
+                errorMsg;
           } else {
             errorMsg = response.data.toString();
           }
         }
+
+        print("Error response: $errorMsg");
         Get.snackbar("Error", errorMsg);
       }
-    } catch (e, st) {
+    } catch (e, stackTrace) {
       Loader.instance.hide();
-      Get.snackbar("Error", "Failed to send message. Please try again.");
-      print("Error sending contact email: $e");
-      print(st);
+      print("Exception caught: $e");
+      print("Stack trace: $stackTrace");
+
+      String userMessage = "Failed to send message. Please try again.";
+
+      // More specific error messages based on the exception
+      if (e.toString().contains('NetworkException') ||
+          e.toString().contains('SocketException')) {
+        userMessage = "Network error. Please check your connection.";
+      } else if (e.toString().contains('TimeoutException')) {
+        userMessage = "Request timed out. Please try again.";
+      } else if (e.toString().contains('FormatException')) {
+        userMessage = "Invalid server response. Please try again.";
+      }
+
+      Get.snackbar("Error", userMessage);
     } finally {
       isLoading.value = false;
     }
