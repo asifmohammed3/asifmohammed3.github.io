@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -410,4 +411,94 @@ class HomeController extends GetxController with GetTickerProviderStateMixin {
   void setPortfolioTab(PortfolioTab tab) {
     selectedPortfolioTab.value = tab;
   }
+
+
+
+
+  bool validateForm() {
+    if (nameController.text.trim().isEmpty) {
+      Get.snackbar("Error", "Name cannot be empty");
+      return false;
+    }
+    if (!GetUtils.isEmail(emailController.text.trim())) {
+      Get.snackbar("Error", "Enter a valid email address");
+      return false;
+    }
+    if (subjectController.text.trim().isEmpty) {
+      Get.snackbar("Error", "Subject cannot be empty");
+      return false;
+    }
+    if (messageController.text.trim().isEmpty) {
+      Get.snackbar("Error", "Message cannot be empty");
+      return false;
+    }
+    return true;
+  }
+
+
+
+  Future<void> sendContactEmail() async {
+    if (!validateForm()) return;
+
+    isLoading.value = true;
+    Loader.instance.show();
+
+    try {
+      final body = {
+        'from': 'no-reply@mohammedasif.in',
+        'to': 'mohammedasifparambil@gmail.com',
+        'subject': subjectController.text.trim(),
+        'html': """
+<div style="font-family: Arial, sans-serif; color: #333; line-height: 1.5; max-width: 600px; margin: auto; padding: 20px; background-color: #f9f9f9; border-radius: 8px;">
+  <h2 style="color: #2C0000; border-bottom: 2px solid #2C0000; padding-bottom: 8px; margin-bottom: 20px; font-weight: 600;">New Contact Message</h2>
+  <p><strong>Name:</strong> <span style="color: #555;">${nameController.text.trim()}</span></p>
+  <p><strong>Email:</strong> <a href="mailto:${emailController.text.trim()}" style="color: #2C0000; text-decoration: none;">${emailController.text.trim()}</a></p>
+  <p><strong>Subject:</strong> <span style="color: #555;">${subjectController.text.trim()}</span></p>
+  <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;" />
+  <p style="white-space: pre-line; font-size: 15px;">${messageController.text.trim()}</p>
+</div>
+      """
+      };
+
+      print("Sending body: $body"); // Debugging
+
+      final response = await supabase.functions.invoke(
+        'resend-email',
+        body: jsonEncode(body), // Explicitly encode to JSON
+        headers: {
+          'Content-Type': 'application/json', // Ensure proper content type
+        },
+      );
+
+      Loader.instance.hide();
+
+      if (response.status >= 200 && response.status < 300) {
+        Get.snackbar("Success", "Message sent successfully!");
+        nameController.clear();
+        emailController.clear();
+        subjectController.clear();
+        messageController.clear();
+      } else {
+        String errorMsg = "Unknown error";
+        if (response.data != null) {
+          if (response.data is Map<String, dynamic> && response.data['error'] != null) {
+            errorMsg = response.data['error'].toString();
+          } else {
+            errorMsg = response.data.toString();
+          }
+        }
+        Get.snackbar("Error", errorMsg);
+      }
+    } catch (e, st) {
+      Loader.instance.hide();
+      Get.snackbar("Error", "Failed to send message. Please try again.");
+      print("Error sending contact email: $e");
+      print(st);
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+
+
 }
