@@ -6,6 +6,7 @@ import '../../../models/models.dart';
 import '../../../utils/responsive.dart';
 import '../../../widgets/LinedTitle.dart';
 import '../../../widgets/dotted_timeline.dart';
+import '../../../widgets/slide_in_widget.dart';
 import '../controllers/home_controller.dart';
 
 class ResumeSection extends GetView<HomeController> {
@@ -55,31 +56,13 @@ class ResumeSection extends GetView<HomeController> {
 Widget _buildMobileLayout(dynamic data, List<Skill> skills) {
   return Column(
     children: [
-      ResumeProfileCard(profile: data.profile, skills: skills),
-
-      const SizedBox(height: 16),
-
-      ResumeRightPanel(
-        experiences: data.experiences,
-        educations: data.educations,
-        certifications: data.certifications,
-      ),
-    ],
-  );
-}
-
-// Tablet layout: can be two columns but adjusted widths and spacing
-Widget _buildTabletLayout(dynamic data, List<Skill> skills) {
-  return Row(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Expanded(
-        flex: 4,
+      SlideOnVisibility(
+        fromOffset: Offset(-0.5, 0),
         child: ResumeProfileCard(profile: data.profile, skills: skills),
       ),
-      const SizedBox(width: 16),
-      Expanded(
-        flex: 7,
+      const SizedBox(height: 16),
+      SlideOnVisibility(
+        fromOffset: Offset(0.5, 0),
         child: ResumeRightPanel(
           experiences: data.experiences,
           educations: data.educations,
@@ -90,7 +73,33 @@ Widget _buildTabletLayout(dynamic data, List<Skill> skills) {
   );
 }
 
-// Desktop layout: wide with generous spacing
+Widget _buildTabletLayout(dynamic data, List<Skill> skills) {
+  return Row(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Expanded(
+        flex: 4,
+        child: SlideOnVisibility(
+          child: ResumeProfileCard(profile: data.profile, skills: skills),
+          fromOffset: Offset(-0.5, 0),
+        ),
+      ),
+      const SizedBox(width: 16),
+      Expanded(
+        flex: 7,
+        child: SlideOnVisibility(
+          fromOffset: Offset(0.5, 0),
+          child: ResumeRightPanel(
+            experiences: data.experiences,
+            educations: data.educations,
+            certifications: data.certifications,
+          ),
+        ),
+      ),
+    ],
+  );
+}
+
 Widget _buildDesktopLayout(dynamic data, List<Skill> skills) {
   return Row(
     crossAxisAlignment: CrossAxisAlignment.start,
@@ -98,19 +107,27 @@ Widget _buildDesktopLayout(dynamic data, List<Skill> skills) {
       const SizedBox(width: 12),
       SizedBox(
         width: 360,
-        child: ResumeProfileCard(profile: data.profile, skills: skills),
+        child: SlideOnVisibility(
+          child: ResumeProfileCard(profile: data.profile, skills: skills),
+          fromOffset: Offset(-0.5, 0),
+        ),
       ),
       const SizedBox(width: 12),
       Expanded(
-        child: ResumeRightPanel(
-          experiences: data.experiences,
-          educations: data.educations,
-          certifications: data.certifications,
+        child: SlideOnVisibility(
+          fromOffset: Offset(0.5, 0),
+          child: ResumeRightPanel(
+            experiences: data.experiences,
+            educations: data.educations,
+            certifications: data.certifications,
+          ),
         ),
       ),
     ],
   );
 }
+
+
 
 class ResumeRightPanel extends StatelessWidget {
   final List<Experience> experiences;
@@ -138,14 +155,17 @@ class ResumeRightPanel extends StatelessWidget {
           const SizedBox(height: 20),
 
           ...experiences.map(
-            (exp) => _experienceCard(
-              title: exp.role,
-              company: exp.company,
-              duration: exp.duration,
-              bullets: exp.description
-                  .split('. ')
-                  .where((s) => s.isNotEmpty)
-                  .toList(),
+            (exp) => SlideOnVisibility(
+              fromOffset: Offset(0.5, 0),
+              child: _experienceCard(
+                title: exp.role,
+                company: exp.company,
+                duration: exp.duration,
+                bullets: exp.description
+                    .split('. ')
+                    .where((s) => s.isNotEmpty)
+                    .toList(),
+              ),
             ),
           ),
           const SizedBox(height: 40),
@@ -153,11 +173,14 @@ class ResumeRightPanel extends StatelessWidget {
           const SizedBox(height: 20),
 
           ...educations.map(
-            (edu) => _educationItem(
-              degree: edu.degree,
-              university: edu.institution,
-              duration: edu.year,
-              detail: edu.description,
+            (edu) => SlideOnVisibility(
+              fromOffset: Offset(0.5, 0),
+              child: _educationItem(
+                degree: edu.degree,
+                university: edu.institution,
+                duration: edu.year,
+                detail: edu.description,
+              ),
             ),
           ),
 
@@ -166,7 +189,8 @@ class ResumeRightPanel extends StatelessWidget {
           const SizedBox(height: 20),
 
           ...certifications.map(
-            (cert) => _certificationItem(cert.title, cert.year),
+            (cert) => SlideOnVisibility(
+                fromOffset: Offset(0.5, 0),child: _certificationItem(cert.title, cert.year)),
           ),
           const SizedBox(height: 30),
         ],
@@ -350,11 +374,14 @@ class ResumeProfileCard extends StatelessWidget {
             Center(
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(8),
-                child: Image.network(
-                  profile.imageUrl,
-                  width: 320,
-                  height: 400,
-                  fit: BoxFit.cover,
+                child: SlideOnVisibility(
+                  fromOffset: Offset(-0.5, 0),
+                  child: Image.network(
+                    profile.imageUrl,
+                    width: 320,
+                    height: 400,
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
             ),
@@ -368,9 +395,12 @@ class ResumeProfileCard extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 8),
-            Text(
-              profile.description,
-              style: const TextStyle(color: Colors.white70, fontSize: 14),
+            SlideOnVisibility(
+              fromOffset: Offset(0.3, 0),
+              child: Text(
+                profile.description,
+                style: const TextStyle(color: Colors.white70, fontSize: 14),
+              ),
             ),
             const SizedBox(height: 24),
 
@@ -383,12 +413,18 @@ class ResumeProfileCard extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 12),
-            contactRow(Icons.location_on, profile.location),
-            contactRow(Icons.email, profile.email),
-            contactRow(Icons.phone, profile.phone),
-            contactRow(
-              FontAwesomeIcons.linkedin,
-              "linkedin.com/in/mohammedasifp/",
+            SlideOnVisibility(
+                fromOffset: Offset(0.2, 0),child: contactRow(Icons.location_on, profile.location)),
+            SlideOnVisibility(
+                fromOffset: Offset(-0.2, 0),child: contactRow(Icons.email, profile.email)),
+            SlideOnVisibility(
+                fromOffset: Offset(0.4, 0),child: contactRow(Icons.phone, profile.phone)),
+            SlideOnVisibility(
+                fromOffset: Offset(-0.4, 0),
+              child: contactRow(
+                FontAwesomeIcons.linkedin,
+                "linkedin.com/in/mohammedasifp/",
+              ),
             ),
             const SizedBox(height: 24),
 
@@ -404,7 +440,8 @@ class ResumeProfileCard extends StatelessWidget {
 
             ...skills
                 .take(4) // get only the first 4 skills
-                .map((s) => skillProgress(s.label, s.level / 100.0)),
+                .map((s) => SlideOnVisibility(
+    fromOffset: Offset(0.5, 0),child: skillProgress(s.label, s.level / 100.0))),
           ],
         ),
       ),

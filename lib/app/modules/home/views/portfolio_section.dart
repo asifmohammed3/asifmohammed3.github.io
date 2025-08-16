@@ -5,6 +5,7 @@ import 'package:portfolio_website/app/routes/app_pages.dart';
 import '../../../data/api_models/portfolio_models.dart';
 import '../../../utils/responsive.dart';
 import '../../../widgets/LinedTitle.dart';
+import '../../../widgets/slide_in_widget.dart';
 import '../controllers/home_controller.dart';
 
 class PortfolioSection extends GetView<HomeController> {
@@ -68,10 +69,15 @@ class PortfolioSection extends GetView<HomeController> {
               ),
               itemBuilder: (context, index) {
                 final project = projects[index];
-                return _projectCard(project);
+                return SlideOnVisibility(
+                  fromOffset: const Offset(0.0, 0.13),
+                  duration: const Duration(milliseconds: 640),
+                  child: _projectCard(project),
+                );
               },
             ),
           ),
+
       ],
     );
   }
@@ -86,14 +92,17 @@ class PortfolioSection extends GetView<HomeController> {
         Container(
           width: 190,
           color: Colors.black87,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _tabItem("All Projects", PortfolioTab.all),
-              _tabItem("Professional", PortfolioTab.professional),
-              _tabItem("Personal", PortfolioTab.personal),
-              _tabItem("Academic", PortfolioTab.academic),
-            ],
+          child: SlideOnVisibility(
+            fromOffset: Offset(-0.2, 0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _tabItem("All Projects", PortfolioTab.all),
+                _tabItem("Professional", PortfolioTab.professional),
+                _tabItem("Personal", PortfolioTab.personal),
+                _tabItem("Academic", PortfolioTab.academic),
+              ],
+            ),
           ),
         ),
         Expanded(
@@ -118,7 +127,8 @@ class PortfolioSection extends GetView<HomeController> {
                           childAspectRatio: 1.2,
                         ),
                     itemBuilder: (context, index) =>
-                        _projectCard(projects[index]),
+                        SlideOnVisibility(
+                            fromOffset: Offset(0.2, 0),child: _projectCard(projects[index])),
                   ),
                 ),
         ),

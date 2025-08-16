@@ -12,6 +12,7 @@ import 'package:portfolio_website/app/modules/home/views/skills_section.dart';
 import '../../../routes/app_pages.dart';
 import '../../../widgets/custom_hamburger.dart';
 import '../../../widgets/footer.dart';
+import '../../../widgets/slide_in_widget.dart';
 
 class HomeView extends GetView<HomeController> {
   const HomeView({super.key});

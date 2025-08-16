@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../routes/app_pages.dart';
 import '../../admin_auth/controllers/admin_auth_controller.dart';
 import '../controllers/admin_main_controller.dart';
 
@@ -18,6 +19,7 @@ class AdminMainView extends GetView<AdminMainController> {
             tooltip: 'Logout',
             onPressed: () {
               Get.find<AdminAuthController>().logout();
+              Get.offAll(Routes.HOME);
             },
           ),
         ],
