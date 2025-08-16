@@ -437,7 +437,7 @@ class HomeController extends GetxController with GetTickerProviderStateMixin {
 
 
 
-  Future<void> sendContactEmail() async {
+  Future<void> sendEmail() async {
     if (!validateForm()) return;
 
     isLoading.value = true;

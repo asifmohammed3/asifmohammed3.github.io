@@ -3,7 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../models/models.dart';
+import '../../../widgets/slide_in_widget.dart';
 import '../controllers/home_controller.dart';
+
+
 
 class HeroSection extends GetView<HomeController> {
   const HeroSection({super.key});
@@ -38,20 +41,34 @@ class HeroSection extends GetView<HomeController> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      _leftContent(
-                        isWide,
-                        controller.heroSection.value ??
-                            HeroSectionModel(
-                              name: '',
-                              animatedRoles: [""],
-                              description: '',
-                              profileImageUrl: '',
-                            ),
+                      // LEFT: Expanded + animated inner content
+                      Expanded(
+                        flex: isWide ? 2 : 0,
+                        child: SlideInMount(
+                          fromOffset: const Offset(-1.0, 0),
+                          child: _leftContent(
+                            isWide,
+                            controller.heroSection.value ??
+                                HeroSectionModel(
+                                  name: '',
+                                  animatedRoles: [''],
+                                  description: '',
+                                  profileImageUrl: '',
+                                ),
+                          ),
+                        ),
                       ),
                       const SizedBox(width: 40, height: 40),
-                      _rightImage(
-                        controller.heroSection.value?.profileImageUrl ?? "",
-                      ),
+                      // RIGHT: Expanded + animated image content
+                      MediaQuery.of(context).size.width > 400? Expanded(
+                        flex: 1,
+                        child: SlideInMount(
+                          fromOffset: const Offset(1.0, 0),
+                          child: _rightImage(
+                            controller.heroSection.value?.profileImageUrl ?? '',
+                          ),
+                        ),
+                      ):SizedBox(),
                     ],
                   ),
                 ),
@@ -64,139 +81,116 @@ class HeroSection extends GetView<HomeController> {
   }
 
   Widget _leftContent(bool isWide, HeroSectionModel heroData) {
-    return Expanded(
-      flex: isWide ? 2 : 0,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: isWide
-            ? CrossAxisAlignment.start
-            : CrossAxisAlignment.center,
-        children: [
-          const SizedBox(height: 8),
-          Text(
-            heroData.name,
-            style: const TextStyle(
-              fontSize: 40,
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-            ),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment:
+      isWide ? CrossAxisAlignment.start : CrossAxisAlignment.center,
+      children: [
+        const SizedBox(height: 8),
+        Text(
+          heroData.name,
+          style: const TextStyle(
+            fontSize: 40,
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
           ),
-          const SizedBox(height: 8),
-          RichText(
-            text: TextSpan(
-              style: const TextStyle(fontSize: 20),
-              children: [
-                const TextSpan(
-                  text: "I'm a ",
-                  style: TextStyle(color: Colors.white),
-                ),
-                WidgetSpan(
-                  alignment: PlaceholderAlignment.middle,
-                  child: SizedBox(
-                    height: 30,
-                    child: AnimatedTextKit(
-                      animatedTexts: heroData.animatedRoles
-                          .map(
-                            (role) => TyperAnimatedText(
-                              role,
-                              textStyle: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                decoration: TextDecoration.underline,
-                                fontSize: 20,
-                              ),
-                              speed: Duration(milliseconds: 150),
-                            ),
-                          )
-                          .toList(),
-                      repeatForever: true,
-                      pause: Duration(milliseconds: 500),
-                    ),
+        ),
+        const SizedBox(height: 8),
+        RichText(
+          text: TextSpan(
+            style: const TextStyle(fontSize: 20),
+            children: [
+              const TextSpan(
+                text: "I'm a ",
+                style: TextStyle(color: Colors.white),
+              ),
+              WidgetSpan(
+                alignment: PlaceholderAlignment.middle,
+                child: SizedBox(
+                  height: 30,
+                  child: AnimatedTextKit(
+                    animatedTexts: heroData.animatedRoles
+                        .map(
+                          (role) => TyperAnimatedText(
+                        role,
+                        textStyle: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          decoration: TextDecoration.underline,
+                          fontSize: 20,
+                        ),
+                        speed: const Duration(milliseconds: 150),
+                      ),
+                    )
+                        .toList(),
+                    repeatForever: true,
+                    pause: const Duration(milliseconds: 500),
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-          const SizedBox(height: 24),
-          Text(
-            heroData.description,
-            style: const TextStyle(color: Colors.white70, height: 1.6),
-            textAlign: TextAlign.justify,
-          ),
-          const SizedBox(height: 32),
-          _buttons(isWide, heroData),
-        ],
-      ),
+        ),
+        const SizedBox(height: 24),
+        Text(
+          heroData.description,
+          style: const TextStyle(color: Colors.white70, height: 1.6),
+          textAlign: TextAlign.justify,
+        ),
+        const SizedBox(height: 32),
+        _buttons(isWide),
+      ],
     );
   }
 
-  Widget _buttons(bool isWide, HeroSectionModel heroData) {
+  Widget _buttons(bool isWide) {
     return Row(
-      mainAxisAlignment: isWide
-          ? MainAxisAlignment.start
-          : MainAxisAlignment.center,
+      mainAxisAlignment: isWide ? MainAxisAlignment.start : MainAxisAlignment.center,
       children: [
         Flexible(
           child: ElevatedButton(
-            onPressed: () {
-              controller.scrollToSection('portfolio');
-            },
+            onPressed: () => controller.scrollToSection('portfolio'),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.white,
               foregroundColor: const Color(0xFF2C0000),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+              padding:
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(40),
               ),
               elevation: 5,
             ),
-            child: Text(
+            child: const Text(
               "View My Work",
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-                letterSpacing: 1,
-              ),
+              style:
+              TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
           ),
         ),
         const SizedBox(width: 12),
         Flexible(
           child: OutlinedButton(
-            onPressed: () {
-              controller.scrollToSection('contact');
-            },
-            style:
-                OutlinedButton.styleFrom(
-                  side: const BorderSide(color: Colors.white, width: 2),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 20,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(40),
-                  ),
-                ).copyWith(
-                  backgroundColor: WidgetStateProperty.resolveWith<Color?>((
-                    Set<WidgetState> states,
-                  ) {
-                    if (states.contains(WidgetState.hovered)) {
-                      return Colors.white; // Fill white on hover
-                    }
-                    return Colors.transparent; // Default transparent
-                  }),
-                  foregroundColor: WidgetStateProperty.resolveWith<Color?>((
-                    Set<WidgetState> states,
-                  ) {
-                    if (states.contains(WidgetState.hovered)) {
-                      return Colors.black; // Text black on hover
-                    }
-                    return Colors.white; // Default white text
-                  }),
-                ),
-            child: Text(
+            onPressed: () => controller.scrollToSection('contact'),
+            style: OutlinedButton.styleFrom(
+              side: const BorderSide(color: Colors.white, width: 2),
+              padding:
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(40),
+              ),
+            ).copyWith(
+              backgroundColor: MaterialStateProperty.resolveWith<Color?>(
+                      (states) => states.contains(MaterialState.hovered)
+                      ? Colors.white
+                      : Colors.transparent),
+              foregroundColor: MaterialStateProperty.resolveWith<Color?>(
+                      (states) => states.contains(MaterialState.hovered)
+                      ? Colors.black
+                      : Colors.white),
+            ),
+            child: const Text(
               "Get In Touch",
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
             ),
           ),
         ),
@@ -205,50 +199,45 @@ class HeroSection extends GetView<HomeController> {
   }
 
   Widget _rightImage(String imageUrl) {
-    if (imageUrl.isEmpty) {
-      return const SizedBox();
-    }
-    return Expanded(
-      flex: 1,
-      child: Stack(
-        children: [
-          Container(
-            width: 320,
-            height: 400,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: const [
-                BoxShadow(
-                  color: Color(0xFF2A2A2A),
-                  offset: Offset(20, 20),
-                  blurRadius: 2,
-                ),
-              ],
-            ),
-          ),
-          Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: const [
-                BoxShadow(
-                  color: Colors.black54,
-                  offset: Offset(4, 6),
-                  blurRadius: 10,
-                ),
-              ],
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(20),
-              child: Image.network(
-                imageUrl,
-                width: 320,
-                height: 400,
-                fit: BoxFit.cover,
+    if (imageUrl.isEmpty) return const SizedBox();
+    return Stack(
+      children: [
+        Container(
+          width: 320,
+          height: 400,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: const [
+              BoxShadow(
+                color: Color(0xFF2A2A2A),
+                offset: Offset(20, 20),
+                blurRadius: 2,
               ),
+            ],
+          ),
+        ),
+        Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: const [
+              BoxShadow(
+                color: Colors.black54,
+                offset: Offset(4, 6),
+                blurRadius: 10,
+              ),
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: Image.network(
+              imageUrl,
+              width: 320,
+              height: 400,
+              fit: BoxFit.cover,
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 

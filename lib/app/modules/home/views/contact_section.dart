@@ -114,7 +114,7 @@ class ContactSection extends GetView<HomeController> {
           ),
           const SizedBox(height: 12),
           const Text(
-            "Praesent sapien massa, convallis a pellentesque nec, egestas non nisi. Vestibulum ante ipsum primis.",
+            "Let's connect! I’m always excited to discuss new opportunities, collaborate on interesting projects, or simply chat about ideas. Whether you are looking to hire, partner, or just want to say hello, I’d love to hear from you.",
             style: TextStyle(color: Colors.white70),
           ),
           const SizedBox(height: 24),
@@ -138,7 +138,7 @@ class ContactSection extends GetView<HomeController> {
             alignment: Alignment.centerRight,
             child: ElevatedButton(
               onPressed: () {
-                    controller.sendContactEmail();
+                    controller.sendEmail();
 
 
               },

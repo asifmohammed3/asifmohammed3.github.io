@@ -5,6 +5,7 @@ import 'package:portfolio_website/app/modules/home/controllers/home_controller.d
 import '../../../models/models.dart';
 import '../../../utils/responsive.dart';
 import '../../../widgets/LinedTitle.dart';
+import '../../../widgets/slide_in_widget.dart';
 
 class SkillsSection extends GetView<HomeController> {
   const SkillsSection({super.key});
@@ -78,7 +79,11 @@ class _SkillColumn extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           for (var skill in skills) ...[
-            _SkillBar(skill: skill),
+            SlideOnVisibility(
+              fromOffset: const Offset(-0.4, 0), // Slide in from left
+              duration: const Duration(milliseconds: 700),
+              child: _SkillBar(skill: skill),
+            ),
             const SizedBox(height: 24),
           ],
         ],
@@ -86,6 +91,7 @@ class _SkillColumn extends StatelessWidget {
     );
   }
 }
+
 
 class _SkillBar extends StatelessWidget {
   final Skill skill;

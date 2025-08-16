@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:portfolio_website/app/utils/responsive.dart';
 
 import '../../../models/models.dart';
+import '../../../widgets/slide_in_widget.dart';
 import '../controllers/home_controller.dart';
 
 class ProfileCard extends GetView<HomeController> {
@@ -17,58 +18,75 @@ class ProfileCard extends GetView<HomeController> {
     );
   }
 
-  // 📱 Mobile Layout (stacked)
   Widget _buildMobileLayout() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          ProfCard(profile: controller.profileData.value),
+          SlideOnVisibility(
+            fromOffset: const Offset(-0.5, 0),
+            child: ProfCard(profile: controller.profileData.value),
+          ),
           const SizedBox(height: 20),
-          _rightPanel(),
+          SlideOnVisibility(
+            fromOffset: const Offset(0.5, 0),
+            child: _rightPanel(),
+          ),
         ],
       ),
     );
   }
 
-  // 💻 Desktop Layout (side-by-side)
-  Widget _buildDesktopLayout() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Center(
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(width: 12),
-            ProfCard(profile: controller.profileData.value),
-            const SizedBox(width: 12),
-            Expanded(child: _rightPanel()),
-          ],
+  Widget _buildTabletLayout() {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          flex: 4,
+          child: SlideOnVisibility(
+            fromOffset: const Offset(-0.5, 0),
+            child: ProfCard(profile: controller.profileData.value),
+          ),
         ),
-      ),
+        const SizedBox(width: 12),
+        Expanded(
+          flex: 6,
+          child: SlideOnVisibility(
+            fromOffset: const Offset(0.5, 0),
+            child: _rightPanel(),
+          ),
+        ),
+      ],
     );
   }
 
-  // 📱💻 Tablet Layout (side-by-side but narrower)
-  Widget _buildTabletLayout() {
+  Widget _buildDesktopLayout() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-            flex: 4,
-            child: ProfCard(profile: controller.profileData.value),
+          const SizedBox(width: 12),
+          SlideOnVisibility(
+            fromOffset: const Offset(-0.5, 0),
+            child: SizedBox(
+              width: 360,
+              child: ProfCard(profile: controller.profileData.value),
+            ),
           ),
           const SizedBox(width: 12),
-          Expanded(flex: 6, child: _rightPanel()),
+          Expanded(
+            child: SlideOnVisibility(
+              fromOffset: const Offset(0.5, 0),
+              child: _rightPanel(),
+            ),
+          ),
         ],
       ),
     );
   }
 
-  // 🔹 Right Side Panel (same design reused in all layouts)
   Widget _rightPanel() {
     return Container(
       constraints: const BoxConstraints(maxWidth: 900),
@@ -76,30 +94,37 @@ class ProfileCard extends GetView<HomeController> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(height: 12),
-          _TagLine(),
-          SizedBox(height: 18),
-          _Heading(heading: controller.profileData.value?.tagLine ?? ""),
-          SizedBox(height: 18),
-          _Description(desc: controller.profileData.value?.heading ?? ""),
-          SizedBox(height: 24),
-          _StatsRow(statList: controller.profileData.value?.stats ?? []),
-          SizedBox(height: 24),
-          ResumeInfoCard(
-            info:
-                controller.profileData.value?.resumeInfo ??
-                ResumeInfo(
-                  specialization: "",
-                  education: "",
-                  experienceLevel: "",
-                  languages: "",
-                ),
+          SlideOnVisibility(
+            fromOffset: const Offset(0.2, 0),
+            child: const _TagLine(),
           ),
-          SizedBox(height: 24),
+          const SizedBox(height: 18),
+          SlideOnVisibility(
+            fromOffset: const Offset(0.2, 0),
+            child: _Heading(heading: controller.profileData.value?.tagLine ?? ""),
+          ),
+          const SizedBox(height: 18),
+          _Description(desc: controller.profileData.value?.heading ?? ""),
+          const SizedBox(height: 24),
+          SlideOnVisibility(
+            fromOffset: const Offset(0.2, 0),
+            child: _StatsRow(statList: controller.profileData.value?.stats ?? []),
+          ),
+          const SizedBox(height: 24),
+          ResumeInfoCard(
+            info: controller.profileData.value?.resumeInfo ??  ResumeInfo(
+              specialization: "",
+              education: "",
+              experienceLevel: "",
+              languages: "",
+            ),
+          ),
+          const SizedBox(height: 24),
         ],
       ),
     );
   }
+
 }
 
 class _TagLine extends StatelessWidget {
@@ -210,18 +235,21 @@ class ProfCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Container(
-        width: 370,
-        padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 16),
-        decoration: BoxDecoration(
-          color: const Color(0xFF232323),
-          borderRadius: BorderRadius.circular(24),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
+    if (profile == null) return const SizedBox.shrink();
+
+    return Container(
+      width: 370,
+      padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 16),
+      decoration: BoxDecoration(
+        color: const Color(0xFF232323),
+        borderRadius: BorderRadius.circular(24),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SlideOnVisibility(
+            fromOffset: const Offset(-0.5, 0),
+            child: Container(
               width: 104,
               height: 104,
               padding: const EdgeInsets.all(4),
@@ -231,14 +259,17 @@ class ProfCard extends StatelessWidget {
               ),
               child: ClipOval(
                 child: Image.network(
-                  profile?.imageUrl ?? "",
+                  profile!.imageUrl,
                   fit: BoxFit.cover,
                 ),
               ),
             ),
-            const SizedBox(height: 18),
-            Text(
-              profile?.name ?? "",
+          ),
+          const SizedBox(height: 18),
+          SlideOnVisibility(
+            fromOffset: const Offset(0.5, 0),
+            child: Text(
+              profile!.name,
               style: const TextStyle(
                 fontSize: 23,
                 fontWeight: FontWeight.bold,
@@ -246,23 +277,33 @@ class ProfCard extends StatelessWidget {
                 letterSpacing: 0.8,
               ),
             ),
-            const SizedBox(height: 7),
-            Text(
-              profile?.title ?? "",
-              style: const TextStyle(color: Colors.white70, fontSize: 15.5),
-            ),
-            const SizedBox(height: 24),
-            _InfoField(icon: Icons.email_outlined, text: profile?.email ?? ""),
-            const SizedBox(height: 10),
-            _InfoField(icon: Icons.phone, text: profile?.phone ?? ""),
-            const SizedBox(height: 10),
-            _InfoField(icon: Icons.location_on, text: profile?.location ?? ""),
-          ],
-        ),
+          ),
+          const SizedBox(height: 7),
+          Text(
+            profile!.title,
+            style: const TextStyle(color: Colors.white70, fontSize: 15.5),
+          ),
+          const SizedBox(height: 24),
+          SlideOnVisibility(
+            fromOffset: const Offset(0.5, 0),
+            child: _InfoField(icon: Icons.email_outlined, text: profile!.email),
+          ),
+          const SizedBox(height: 10),
+          SlideOnVisibility(
+            fromOffset: const Offset(0.5, 0),
+            child: _InfoField(icon: Icons.phone, text: profile!.phone),
+          ),
+          const SizedBox(height: 10),
+          SlideOnVisibility(
+            fromOffset: const Offset(0.5, 0),
+            child: _InfoField(icon: Icons.location_on, text: profile!.location),
+          ),
+        ],
       ),
     );
   }
 }
+
 
 class _InfoField extends StatelessWidget {
   final IconData icon;

@@ -15,14 +15,16 @@ Future<void> main() async {
 
   // if (kIsWeb) {
   //   // Web: use --dart-define
-    supabaseUrl = const String.fromEnvironment('SUPABASE_URL');
-    supabaseAnonKey = const String.fromEnvironment('SUPABASE_ANON_KEY');
+  //   supabaseUrl = const String.fromEnvironment('SUPABASE_URL');
+  //   supabaseAnonKey = const String.fromEnvironment('SUPABASE_ANON_KEY');
   // } else {
   //   // Mobile/Desktop: use .env file
   //   await dotenv.load(fileName: ".env");
   //   supabaseUrl = dotenv.env['SUPABASE_URL'] ?? '';
   //   supabaseAnonKey = dotenv.env['SUPABASE_ANON_KEY'] ?? '';
   // }
+  supabaseUrl = "https://lwmevpwgybffsflvfokt.supabase.co";
+  supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx3bWV2cHdneWJmZnNmbHZmb2t0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ1Njc0MjksImV4cCI6MjA3MDE0MzQyOX0.1cjpWQ55A2OdeZs_g6berT1SjK05v_Jz-WgLoie83bI";
 
   if (supabaseUrl.isEmpty || supabaseAnonKey.isEmpty) {
     throw Exception(
