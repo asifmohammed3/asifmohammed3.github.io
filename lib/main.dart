@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart'; // for kIsWeb
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
@@ -8,14 +9,35 @@ import 'app/widgets/loader.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: ".env");
+
+  String supabaseUrl;
+  String supabaseAnonKey;
+
+  // if (kIsWeb) {
+  //   // Web: use --dart-define
+    supabaseUrl = const String.fromEnvironment('SUPABASE_URL');
+    supabaseAnonKey = const String.fromEnvironment('SUPABASE_ANON_KEY');
+  // } else {
+  //   // Mobile/Desktop: use .env file
+  //   await dotenv.load(fileName: ".env");
+  //   supabaseUrl = dotenv.env['SUPABASE_URL'] ?? '';
+  //   supabaseAnonKey = dotenv.env['SUPABASE_ANON_KEY'] ?? '';
+  // }
+
+  if (supabaseUrl.isEmpty || supabaseAnonKey.isEmpty) {
+    throw Exception(
+      "Missing Supabase credentials.\n"
+          "For Web: pass via --dart-define,\n"
+          "For Mobile: store in .env",
+    );
+  }
 
   await Supabase.initialize(
-    url: dotenv.env['SUPABASE_URL'] ?? '',
-    anonKey: dotenv.env['SUPABASE_ANON_KEY'] ?? '',
+    url: supabaseUrl,
+    anonKey: supabaseAnonKey,
   );
 
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -46,12 +68,10 @@ class MyApp extends StatelessWidget {
       ),
       darkTheme: ThemeData.dark(),
       themeMode: ThemeMode.dark,
-      // Always dark mode
       builder: (context, child) {
-        // Wrap the entire app inside a Stack with OverlayLoader on top
         return Stack(
           children: [
-            child!, // The normal app content
+            child!,
             const OverlayLoader(),
           ],
         );
