@@ -138,7 +138,9 @@ class ContactSection extends GetView<HomeController> {
             alignment: Alignment.centerRight,
             child: ElevatedButton(
               onPressed: () {
-                // Add your submit logic here, possibly controller.submitForm()
+                    controller.sendContactEmail();
+
+
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white,
