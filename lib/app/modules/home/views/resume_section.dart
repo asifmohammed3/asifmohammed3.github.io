@@ -162,7 +162,7 @@ class ResumeRightPanel extends StatelessWidget {
           ),
 
           const SizedBox(height: 40),
-          _sectionTitle("📜 Certifications"),
+          _sectionTitle("📜 Awards & Certifications"),
           const SizedBox(height: 20),
 
           ...certifications.map(
