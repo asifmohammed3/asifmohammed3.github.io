@@ -84,7 +84,7 @@ class Feature {
 
   static IconData stringToIcon(String? iconName) {
     switch (iconName) {
-      // Portfolio app icons
+    // Portfolio app icons
       case 'devices':
         return Icons.devices;
       case 'auto_awesome':
@@ -102,7 +102,7 @@ class Feature {
       case 'architecture':
         return Icons.architecture;
 
-      // COVIPLUS (health project) icons
+    // COVIPLUS (health project) icons
       case 'cloud_upload':
         return Icons.cloud_upload;
       case 'insights':
@@ -120,7 +120,7 @@ class Feature {
       case 'autorenew':
         return Icons.autorenew;
 
-      // Gesture Flow icons
+    // Gesture Flow icons
       case 'pan_tool':
         return Icons.pan_tool;
       case 'volume_up':
@@ -150,7 +150,7 @@ class Feature {
       case 'visibility':
         return Icons.visibility;
 
-      // Demo & legacy icons
+    // Demo & legacy icons
       case 'design_services_outlined':
         return Icons.design_services_outlined;
       case 'security_outlined':
@@ -160,8 +160,27 @@ class Feature {
       case 'cloud':
         return Icons.cloud;
 
+    // Key Features (banking app project)
+      case 'mobile_friendly':
+        return Icons.mobile_friendly;
+      case 'credit_card':
+        return Icons.credit_card;
+      case 'fingerprint':
+        return Icons.fingerprint;
+      case 'integration_instructions':
+        return Icons.integration_instructions;
+      case 'rocket_launch':
+        return Icons.rocket_launch;
+      case 'bug_report':
+        return Icons.bug_report;
+      case 'speed':
+        return Icons.speed;
+      case 'palette':
+        return Icons.palette;
+
       default:
         return Icons.star_outline;
     }
   }
+
 }
