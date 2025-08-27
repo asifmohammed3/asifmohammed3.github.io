@@ -387,11 +387,11 @@ class ProjectDetailView extends GetView<ProjectDetailController> {
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           itemCount: project.keyFeatures.length,
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: isMobile ? 1 : 2,
-            crossAxisSpacing: 24,
+          gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+            maxCrossAxisExtent: isMobile ? 500 : 400, // controls column width
             mainAxisSpacing: 24,
-            childAspectRatio: 2.5,
+            crossAxisSpacing: 24,
+            childAspectRatio: 1, // let height grow naturally
           ),
           itemBuilder: (context, index) {
             final feature = project.keyFeatures[index];
@@ -407,44 +407,50 @@ class ProjectDetailView extends GetView<ProjectDetailController> {
   }
 
   Widget _buildFeatureCard(IconData icon, String title, String description) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xFF2A2A2A),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 50,
-            height: 50,
-            decoration: BoxDecoration(
-              color: Colors.black87,
-              borderRadius: BorderRadius.circular(12),
+    return IntrinsicHeight(
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: const Color(0xFF2A2A2A),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min, // shrink to fit
+          children: [
+            Container(
+              width: 50,
+              height: 50,
+              decoration: BoxDecoration(
+                color: Colors.black87,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(icon, color: Colors.white, size: 28),
             ),
-            child: Icon(icon, color: Colors.white, size: 28),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            title,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
+            const SizedBox(height: 16),
+            Text(
+              title,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-          ),
-          const SizedBox(height: 10),
-          Text(
-            description,
-            style: TextStyle(
-              color: Colors.white.withOpacity(0.7),
-              fontSize: 13,
-              height: 1.4,
+            const SizedBox(height: 10),
+            Flexible(
+              child: Text(
+                description,
+                style: TextStyle(
+                  color: Colors.white.withOpacity(0.7),
+                  fontSize: 13,
+                  height: 1.4,
+                ),
+                softWrap: true,
+                overflow: TextOverflow.visible,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

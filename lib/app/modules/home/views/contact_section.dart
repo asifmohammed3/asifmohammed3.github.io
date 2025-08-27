@@ -13,12 +13,6 @@ class ContactSection extends GetView<HomeController> {
       children: [
         const SizedBox(height: 50),
         const LinedTitle(text: "Contact"),
-        const SizedBox(height: 8),
-        const Text(
-          "Necessitatibus eius consequatur ex aliquid fuga eum quidem sint consectetur velit",
-          style: TextStyle(color: Colors.white70),
-          textAlign: TextAlign.center,
-        ),
         const SizedBox(height: 40),
         Center(
           child: ConstrainedBox(

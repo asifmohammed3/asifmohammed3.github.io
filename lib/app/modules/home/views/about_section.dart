@@ -1,10 +1,16 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:portfolio_website/app/utils/responsive.dart';
+import 'dart:html' as html; // for web
+import 'package:url_launcher/url_launcher.dart'; // for mobile
 
 import '../../../models/models.dart';
+import '../../../widgets/loader.dart';
 import '../../../widgets/slide_in_widget.dart';
 import '../controllers/home_controller.dart';
+
+
 
 class ProfileCard extends GetView<HomeController> {
   const ProfileCard({super.key});
@@ -425,19 +431,38 @@ class ResumeInfoCard extends GetView<HomeController> {
 
   /// Download Resume Button
   Widget _buildDownloadButton() {
+    const resumeUrl = "https://lwmevpwgybffsflvfokt.supabase.co/storage/v1/object/public/portfolio/resume/Mohammed_Asif%20%20Resume.pdf";
+
     return ElevatedButton.icon(
-      onPressed: () {
-        // TODO: Add download resume action
+      onPressed: () async {
+        Loader.instance.show();
+        if (kIsWeb) {
+          // ✅ For Web: trigger browser download
+          html.AnchorElement(href: resumeUrl)
+            ..setAttribute("download", "Resume.pdf")
+            ..click();
+        } else {
+          // ✅ For Mobile/Desktop: open in browser (user can download/view)
+          if (await canLaunchUrl(Uri.parse(resumeUrl))) {
+        await launchUrl(Uri.parse(resumeUrl), mode: LaunchMode.externalApplication);
+        }
+          Loader.instance.hide();
+      }
+
+
       },
       icon: const Icon(Icons.download_outlined, color: Color(0xFF2C0000)),
       label: const Padding(
         padding: EdgeInsets.symmetric(vertical: 13),
-        child: Text(
-          "Download Resume",
-          style: TextStyle(
-            color: Color(0xFF2C0000),
-            fontWeight: FontWeight.bold,
-            fontSize: 16.5,
+        child: FittedBox(
+          fit: BoxFit.fitWidth,
+          child: Text(
+            "Download Resume",
+            style: TextStyle(
+              color: Color(0xFF2C0000),
+              fontWeight: FontWeight.bold,
+              fontSize: 16.5,
+            ),
           ),
         ),
       ),
