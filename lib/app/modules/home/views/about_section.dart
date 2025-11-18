@@ -431,7 +431,7 @@ class ResumeInfoCard extends GetView<HomeController> {
 
   /// Download Resume Button
   Widget _buildDownloadButton() {
-    const resumeUrl = "https://lwmevpwgybffsflvfokt.supabase.co/storage/v1/object/public/portfolio/resume/Mohammed_Asif%20%20Resume.pdf";
+    const resumeUrl = "https://lwmevpwgybffsflvfokt.supabase.co/storage/v1/object/public/portfolio/resume/Mohammed_Asif%20Resume.pdf";
 
     return ElevatedButton.icon(
       onPressed: () async {
