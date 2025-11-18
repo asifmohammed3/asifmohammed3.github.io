@@ -71,11 +71,11 @@ class ContactSection extends GetView<HomeController> {
               color: Color(0xFF2C0000),
             ),
           ),
-          const SizedBox(height: 12),
-          Text(
-            "Praesent sapien massa, convallis a pellentesque nec, egestas non nisi. Vestibulum ante ipsum primis.",
-            style: const TextStyle(color: Colors.black87),
-          ),
+          // const SizedBox(height: 12),
+          // Text(
+          //   "Praesent sapien massa, convallis a pellentesque nec, egestas non nisi. Vestibulum ante ipsum primis.",
+          //   style: const TextStyle(color: Colors.black87),
+          // ),
           const SizedBox(height: 24),
           ...controller.contactItems.map(
             (item) => Padding(
